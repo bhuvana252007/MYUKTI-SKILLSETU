@@ -1,0 +1,403 @@
+import React from 'react';
+import { PageView, SkillCategory, SellerListing, SupportedLanguage } from '../types';
+import { TRANSLATIONS } from '../translations';
+import { BotanicalCorner, BotanicalDivider } from './BotanicalAccents';
+import heroIllustration from '../assets/images/indian_women_folk_art_hero_1788506998271.jpg';
+import { 
+  Scissors, 
+  UtensilsCrossed, 
+  GraduationCap, 
+  Sparkles, 
+  ShieldCheck, 
+  ArrowRight, 
+  MapPin, 
+  CheckCircle,
+  Users,
+  Mic,
+  HeartHandshake
+} from 'lucide-react';
+
+interface HomePageProps {
+  language: SupportedLanguage;
+  onNavigate: (page: PageView) => void;
+  onSelectCategory: (category: SkillCategory) => void;
+  onSelectListing: (listing: SellerListing) => void;
+  featuredListings: SellerListing[];
+}
+
+export const HomePage: React.FC<HomePageProps> = ({
+  language,
+  onNavigate,
+  onSelectCategory,
+  onSelectListing,
+  featuredListings,
+}) => {
+  const t = TRANSLATIONS[language];
+
+  const categoryConfigs: {
+    category: SkillCategory;
+    icon: React.ElementType;
+    color: string;
+    bg: string;
+    borderColor: string;
+  }[] = [
+    {
+      category: 'Tailoring',
+      icon: Scissors,
+      color: '#C2542D',
+      bg: '#FBEEE8',
+      borderColor: '#F3D2C4',
+    },
+    {
+      category: 'Cooking',
+      icon: UtensilsCrossed,
+      color: '#D49B24',
+      bg: '#FDF6E8',
+      borderColor: '#F6E4BA',
+    },
+    {
+      category: 'Tutoring',
+      icon: GraduationCap,
+      color: '#1E4D38',
+      bg: '#EEF6F2',
+      borderColor: '#C7E4D3',
+    },
+    {
+      category: 'Mehendi',
+      icon: Sparkles,
+      color: '#A13D19',
+      bg: '#FDF1EC',
+      borderColor: '#F7CEBF',
+    },
+  ];
+
+  return (
+    <div className="w-full pb-20 bg-[#FAF5EB] text-[#2A221E]">
+      {/* Heritage-Inspired Hero Section with Full-Width Illustration Background */}
+      <section className="relative overflow-hidden pt-12 pb-16 sm:pt-16 sm:pb-24 px-4 sm:px-6 lg:px-8 border-b border-[#EADBCE]">
+        {/* Full-Width Heritage Illustration Background */}
+        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+          <img
+            src={heroIllustration}
+            alt="Indian heritage folk art illustration of women artisans"
+            className="w-full h-full object-cover object-center"
+          />
+          {/* Semi-transparent cream overlay (45-50% opacity for optimal legibility) */}
+          <div 
+            className="absolute inset-0 bg-[#FAF5EB]/50 backdrop-blur-[1px]" 
+            aria-hidden="true" 
+          />
+          {/* Subtle gradient framing for pristine contrast and smooth border transition */}
+          <div 
+            className="absolute inset-0 bg-gradient-to-b from-[#FAF5EB]/50 via-transparent to-[#FAF5EB]/80" 
+            aria-hidden="true" 
+          />
+        </div>
+
+        <div className="relative z-10 max-w-4xl mx-auto text-center">
+          {/* Trust Badge with Botanical Leaf Icon */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FFFDF9]/95 backdrop-blur-xs border border-[#C7E4D3] text-[#1E4D38] text-xs sm:text-sm font-bold mb-5 shadow-sm">
+            <ShieldCheck className="w-4 h-4 text-[#1E4D38]" />
+            <span>{t.home.heroBadge}</span>
+          </div>
+
+          {/* Large Elegant Serif Heading for App Name with High Contrast */}
+          <h1 className="font-heritage text-5xl sm:text-7xl lg:text-8xl font-extrabold tracking-tight text-[#2B1B12] mb-3 drop-shadow-sm">
+            Skill<span className="text-[#C2542D]">Setu</span>
+          </h1>
+
+          {/* Tagline Below in Smaller Elegant Text */}
+          <p className="font-serif-tagline text-2xl sm:text-3xl lg:text-4xl text-[#3D2517] italic font-semibold tracking-wide mb-3 drop-shadow-xs">
+            "{t.taglineHero || 'Empowering Skills, Enriching Lives'}"
+          </p>
+
+          <p className="text-base sm:text-lg text-[#3D2517] font-medium max-w-2xl mx-auto leading-relaxed mb-6 drop-shadow-2xs">
+            {t.appTagline}
+          </p>
+
+          {/* Decorative Botanical Divider */}
+          <BotanicalDivider className="mb-6 sm:mb-8" />
+
+          {/* Four Traditional Women's Skills Highlights */}
+          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 max-w-3xl mx-auto mb-6">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FFFDF9]/95 backdrop-blur-xs text-[#3D2B1F] text-xs sm:text-sm font-semibold border border-[#EADBCE] shadow-xs">
+              <Scissors className="w-3.5 h-3.5 text-[#C2542D]" />
+              <span>{t.categories.Tailoring?.title} ({t.categories.Tailoring?.subtitle})</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FFFDF9]/95 backdrop-blur-xs text-[#3D2B1F] text-xs sm:text-sm font-semibold border border-[#EADBCE] shadow-xs">
+              <UtensilsCrossed className="w-3.5 h-3.5 text-[#D49B24]" />
+              <span>{t.categories.Cooking?.title} ({t.categories.Cooking?.subtitle})</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FFFDF9]/95 backdrop-blur-xs text-[#3D2B1F] text-xs sm:text-sm font-semibold border border-[#EADBCE] shadow-xs">
+              <Sparkles className="w-3.5 h-3.5 text-[#C2542D]" />
+              <span>{t.categories.Mehendi?.title} ({t.categories.Mehendi?.subtitle})</span>
+            </span>
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FFFDF9]/95 backdrop-blur-xs text-[#3D2B1F] text-xs sm:text-sm font-semibold border border-[#EADBCE] shadow-xs">
+              <GraduationCap className="w-3.5 h-3.5 text-[#1E4D38]" />
+              <span>{t.categories.Tutoring?.title} ({t.categories.Tutoring?.subtitle})</span>
+            </span>
+          </div>
+
+          {/* Subtitle / Description */}
+          <p className="text-base sm:text-lg text-[#3D2517] font-medium max-w-2xl mx-auto leading-relaxed mb-8 drop-shadow-2xs">
+            {t.home.heroSubtitle}
+          </p>
+
+          {/* TWO CLEAR CALL-TO-ACTION BUTTONS (Terracotta & Gold Tones) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-2xl mx-auto mb-8">
+            {/* Button 1: I offer a service (Terracotta Tone) */}
+            <button
+              id="hero-offer-service-btn"
+              onClick={() => onNavigate('seller-listing')}
+              className="group relative flex flex-col items-center justify-center p-6 sm:p-7 rounded-2xl bg-[#C2542D] hover:bg-[#A13D19] text-white shadow-lg hover:shadow-xl transition-all transform active:scale-[0.98] border-2 border-[#A13D19] text-left cursor-pointer"
+            >
+              <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                <Scissors className="w-7 h-7 text-white" />
+              </div>
+              <span className="text-xl sm:text-2xl font-bold font-heritage text-center text-white">
+                {t.home.btnOffer}
+              </span>
+              <span className="text-xs sm:text-sm text-white/95 font-medium text-center mt-1">
+                {t.home.btnOfferSub}
+              </span>
+              <span className="mt-3.5 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider bg-white/20 px-3.5 py-1 rounded-full text-white">
+                {t.home.btnOfferAction} <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </span>
+            </button>
+
+            {/* Button 2: I need a service (Mustard Gold Tone) */}
+            <button
+              id="hero-need-service-btn"
+              onClick={() => onNavigate('buyer-search')}
+              className="group relative flex flex-col items-center justify-center p-6 sm:p-7 rounded-2xl bg-[#D49B24] hover:bg-[#B57E12] text-[#24170F] shadow-lg hover:shadow-xl transition-all transform active:scale-[0.98] border-2 border-[#B57E12] text-left cursor-pointer"
+            >
+              <div className="w-14 h-14 rounded-full bg-[#24170F]/15 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                <Users className="w-7 h-7 text-[#24170F]" />
+              </div>
+              <span className="text-xl sm:text-2xl font-bold font-heritage text-center text-[#24170F]">
+                {t.home.btnNeed}
+              </span>
+              <span className="text-xs sm:text-sm text-[#24170F]/90 font-semibold text-center mt-1">
+                {t.home.btnNeedSub}
+              </span>
+              <span className="mt-3.5 inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider bg-[#24170F]/15 px-3.5 py-1 rounded-full text-[#24170F]">
+                {t.home.btnNeedAction} <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+              </span>
+            </button>
+          </div>
+
+          {/* Quick Voice Assistant Callout */}
+          <div className="inline-flex items-center justify-center gap-2 text-xs sm:text-sm text-[#3D2517] font-semibold bg-[#FFFDF9]/95 backdrop-blur-xs px-4 py-2 rounded-full border border-[#EADBCE] shadow-sm">
+            <Mic className="w-4 h-4 text-[#C2542D]" />
+            <span>{t.home.voiceTip}</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Popular Categories Grid */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-8">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#C2542D] mb-1">
+              <span>Heritage Livelihoods</span>
+            </div>
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-heritage text-[#3D2B1F]">
+              {t.home.categoriesTitle}
+            </h2>
+            <p className="text-base text-[#6B5749] mt-1">
+              {t.home.categoriesSubtitle}
+            </p>
+          </div>
+          <button
+            onClick={() => onNavigate('buyer-search')}
+            className="mt-3 sm:mt-0 text-[#C2542D] font-bold text-base hover:text-[#A13D19] inline-flex items-center gap-1 cursor-pointer"
+          >
+            {t.home.viewAllCategories} <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {categoryConfigs.map((item) => {
+            const Icon = item.icon;
+            const categoryData = t.categories[item.category];
+            return (
+              <button
+                key={item.category}
+                onClick={() => {
+                  onSelectCategory(item.category);
+                  onNavigate('buyer-search');
+                }}
+                className="p-6 rounded-2xl bg-[#FFFDF9] border border-[#EADBCE] text-left hover:border-[#C2542D] hover:shadow-md transition-all group flex flex-col justify-between cursor-pointer"
+              >
+                <div>
+                  <div
+                    className="w-12 h-12 rounded-xl flex items-center justify-center mb-4 transition-transform group-hover:scale-105"
+                    style={{ backgroundColor: item.bg, color: item.color }}
+                  >
+                    <Icon className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-xl font-bold font-display text-[#3D2B1F] mb-1">
+                    {categoryData?.title || item.category}
+                  </h3>
+                  <p className="text-xs font-bold text-[#D49B24] mb-2">
+                    {categoryData?.subtitle || ''}
+                  </p>
+                  <p className="text-sm text-[#6B5749] leading-relaxed">
+                    {categoryData?.desc || ''}
+                  </p>
+                </div>
+                <div className="mt-5 pt-3.5 border-t border-[#F1E6D8] flex items-center justify-between text-xs font-bold text-[#C2542D]">
+                  <span>{t.home.findInArea}</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Featured Verified Women Providers */}
+      {featuredListings.length > 0 && (
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#1E4D38] mb-1">
+                <span>Verified Micro-Entrepreneurs</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-heritage text-[#3D2B1F]">
+                {t.home.featuredTitle}
+              </h2>
+              <p className="text-base text-[#6B5749] mt-1">
+                {t.home.featuredSubtitle}
+              </p>
+            </div>
+            <button
+              onClick={() => onNavigate('buyer-search')}
+              className="text-sm sm:text-base font-bold text-[#1E4D38] hover:text-[#143526] inline-flex items-center gap-1 bg-[#EEF6F2] border border-[#C7E4D3] px-3.5 py-1.5 rounded-xl cursor-pointer"
+            >
+              {t.home.seeAll} ({featuredListings.length}) <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {featuredListings.slice(0, 3).map((seller) => (
+              <div
+                key={seller.id}
+                onClick={() => onSelectListing(seller)}
+                className="bg-[#FFFDF9] rounded-2xl overflow-hidden border border-[#EADBCE] hover:border-[#1E4D38] hover:shadow-md transition-all cursor-pointer flex flex-col"
+              >
+                <div className="relative h-50 w-full bg-[#EFE4D3] overflow-hidden">
+                  <img
+                    src={seller.photo}
+                    alt={seller.name}
+                    className="w-full h-full object-cover object-center hover:scale-105 transition-transform duration-300"
+                    referrerPolicy="no-referrer"
+                    onError={(e) => {
+                      (e.target as HTMLElement).style.display = 'none';
+                    }}
+                  />
+                  {seller.isShgVerified && (
+                    <div className="absolute top-3 left-3 bg-[#EEF6F2] text-[#1E4D38] border border-[#C7E4D3] px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-xs">
+                      <CheckCircle className="w-3.5 h-3.5 fill-[#1E4D38] text-white" />
+                      <span>{t.shgBadge}</span>
+                    </div>
+                  )}
+                  <div className="absolute bottom-3 right-3 bg-[#3D2B1F]/85 backdrop-blur-xs text-[#FFFDF9] px-2.5 py-1 rounded-md text-xs font-semibold">
+                    {t.categories[seller.category]?.title || seller.category}
+                  </div>
+                </div>
+
+                <div className="p-5 flex-1 flex flex-col justify-between">
+                  <div>
+                    <div className="flex items-baseline justify-between mb-1">
+                      <h3 className="text-xl font-bold font-display text-[#3D2B1F]">
+                        {seller.name}
+                      </h3>
+                      <span className="text-base font-bold text-[#C2542D]">
+                        {seller.price}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 text-xs text-[#6B5749] mb-3">
+                      <MapPin className="w-3.5 h-3.5 text-[#C2542D] shrink-0" />
+                      <span className="truncate">{seller.location}</span>
+                    </div>
+
+                    <p className="text-sm text-[#5C4433] line-clamp-2 leading-relaxed">
+                      {seller.description}
+                    </p>
+                  </div>
+
+                  <div className="mt-4 pt-3.5 border-t border-[#F1E6D8] flex items-center justify-between">
+                    <span className="text-xs text-[#1E4D38] font-semibold flex items-center gap-1">
+                      <ShieldCheck className="w-3.5 h-3.5" /> {t.home.directContactBadge}
+                    </span>
+                    <span className="text-xs font-bold text-[#1E4D38] hover:underline">
+                      {t.home.viewProfileArrow}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Simple 3-Step Guide with Heritage Framing */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="bg-[#FFFDF9] rounded-3xl p-6 sm:p-10 border-2 border-[#EADBCE] shadow-xs">
+          <div className="text-center max-w-2xl mx-auto mb-8">
+            <BotanicalDivider className="mb-4" />
+            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold font-heritage text-[#3D2B1F]">
+              {t.home.howItWorksTitle}
+            </h2>
+            <p className="text-base text-[#6B5749] mt-1">
+              {t.home.howItWorksSubtitle}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {/* Step 1: Terracotta Accent */}
+            <div className="bg-[#FAF5EB] rounded-2xl p-6 border border-[#EADBCE] text-center flex flex-col items-center">
+              <div className="w-12 h-12 rounded-full bg-[#FBEEE8] text-[#C2542D] border border-[#F3D2C4] font-bold text-lg flex items-center justify-center mb-4">
+                1
+              </div>
+              <h3 className="text-lg font-bold font-display text-[#3D2B1F] mb-2">
+                {t.home.step1Title}
+              </h3>
+              <p className="text-sm text-[#5C4433] leading-relaxed">
+                {t.home.step1Desc}
+              </p>
+            </div>
+
+            {/* Step 2: Forest Green Accent */}
+            <div className="bg-[#FAF5EB] rounded-2xl p-6 border border-[#EADBCE] text-center flex flex-col items-center">
+              <div className="w-12 h-12 rounded-full bg-[#EEF6F2] text-[#1E4D38] border border-[#C7E4D3] font-bold text-lg flex items-center justify-center mb-4">
+                2
+              </div>
+              <h3 className="text-lg font-bold font-display text-[#3D2B1F] mb-2">
+                {t.home.step2Title}
+              </h3>
+              <p className="text-sm text-[#5C4433] leading-relaxed">
+                {t.home.step2Desc}
+              </p>
+            </div>
+
+            {/* Step 3: Mustard Gold Accent */}
+            <div className="bg-[#FAF5EB] rounded-2xl p-6 border border-[#EADBCE] text-center flex flex-col items-center">
+              <div className="w-12 h-12 rounded-full bg-[#FDF6E8] text-[#D49B24] border border-[#F6E4BA] font-bold text-lg flex items-center justify-center mb-4">
+                3
+              </div>
+              <h3 className="text-lg font-bold font-display text-[#3D2B1F] mb-2">
+                {t.home.step3Title}
+              </h3>
+              <p className="text-sm text-[#5C4433] leading-relaxed">
+                {t.home.step3Desc}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+};

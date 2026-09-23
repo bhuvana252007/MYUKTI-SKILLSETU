@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  --color-terracotta: #c2542d;
+  --color-terracotta-dark: #a13d19;
+  --color-terracotta-light: #fbeee8;
+  --color-mustard: #d49b24;
+  --color-mustard-dark: #b57e12;
+  --color-mustard-light: #fdf6e8;
+  --color-forest: #1e4d38;
+  --color-forest-dark: #143526;
+  --color-forest-light: #eef6f2;
+  --color-earth-bg: #faf5eb;
+  --color-earth-surface: #fffdf9;
+  --color-earth-border: #eadbce;
+  --color-warm-brown: #4a3728;
+  --color-warm-brown-dark: #3d2b1f;
+}
+
+body {
+  font-family: 'Outfit', system-ui, -apple-system, sans-serif;
+  background-color: #faf5eb;
+  color: #2a221e;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+}
+
+h1, h2, h3, .font-display {
+  font-family: 'Philosopher', 'Cormorant Garamond', Georgia, serif;
+}
+
+.font-heritage {
+  font-family: 'Rozha One', 'Philosopher', Georgia, serif;
+}
+
+.font-serif-tagline {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+/* Subtle botanical leaf border styling */
+.botanical-frame {
+  background-color: #fffdf9;
+  border: 1px solid #eadbce;
+  position: relative;
+}
+
+/* Smooth transitions */
+button, a {
+  transition-property: color, background-color, border-color, box-shadow, transform;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}

@@ -1,0 +1,10 @@
+{
+  "name": "skill setu",
+  "description": "Connects rural and semi-urban women offering local services with nearby buyers.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
