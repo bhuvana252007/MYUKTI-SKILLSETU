@@ -21,8 +21,7 @@ import {
   Loader2,
   Languages,
   Info,
-  CheckCheck,
-  Database
+  CheckCheck
 } from 'lucide-react';
 
 interface SellerListingPageProps {
@@ -31,7 +30,6 @@ interface SellerListingPageProps {
   onListingCreated: (listing: SellerListing) => void;
   editingListing?: SellerListing | null;
   onListingUpdated?: (listing: SellerListing) => void;
-  onOpenSupabaseModal?: () => void;
 }
 
 // Sample photo presets if the user doesn't have a photo on device
@@ -69,7 +67,6 @@ export const SellerListingPage: React.FC<SellerListingPageProps> = ({
   onListingCreated,
   editingListing,
   onListingUpdated,
-  onOpenSupabaseModal,
 }) => {
   const t = TRANSLATIONS[language];
   const currentLangConfig = LANGUAGE_OPTIONS.find((l) => l.id === language) || LANGUAGE_OPTIONS[0];
@@ -266,19 +263,6 @@ export const SellerListingPage: React.FC<SellerListingPageProps> = ({
         </button>
 
         <div className="flex items-center gap-2">
-          {onOpenSupabaseModal && (
-            <button
-              type="button"
-              onClick={onOpenSupabaseModal}
-              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-xs font-semibold text-emerald-800 transition-colors cursor-pointer shadow-2xs"
-              title="Connected to Supabase PostgreSQL Database (hoeusmefmobavdxphyyl)"
-            >
-              <Database className="w-3.5 h-3.5 text-emerald-700" />
-              <span className="hidden sm:inline">Supabase DB:</span>
-              <span className="font-mono text-[11px] font-bold">hoeusmefmobavdxphyyl</span>
-            </button>
-          )}
-
           {isEditMode && (
             <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#FBEEE8] text-[#C2542D] border border-[#F3D2C4]">
               Editing Mode • {editingListing?.name}
@@ -334,30 +318,19 @@ export const SellerListingPage: React.FC<SellerListingPageProps> = ({
             </p>
           </div>
 
-          {/* Supabase Auto-Save Status */}
-          <div className="my-5 p-3.5 rounded-2xl bg-emerald-50 border border-emerald-300 text-left max-w-lg mx-auto shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0">
-                <Database className="w-4 h-4" />
-              </div>
-              <div>
-                <span className="block text-xs font-bold text-emerald-900">
-                  ✓ Profile Auto-Saved to Supabase Backend
-                </span>
-                <span className="text-[11px] text-emerald-700 font-mono">
-                  Project: hoeusmefmobavdxphyyl • Table: profiles
-                </span>
-              </div>
+          {/* Auto-Save & Sync Status */}
+          <div className="my-5 p-3.5 rounded-2xl bg-[#EEF6F2] border border-[#C7E4D3] text-left max-w-lg mx-auto shadow-2xs flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-[#1E4D38] text-white flex items-center justify-center shrink-0">
+              <Check className="w-4 h-4" />
             </div>
-            {onOpenSupabaseModal && (
-              <button
-                type="button"
-                onClick={onOpenSupabaseModal}
-                className="self-start sm:self-auto px-2.5 py-1 rounded-lg bg-white border border-emerald-300 text-emerald-800 text-xs font-bold hover:bg-emerald-100 transition-colors shrink-0 cursor-pointer shadow-2xs"
-              >
-                View Database
-              </button>
-            )}
+            <div>
+              <span className="block text-xs font-bold text-[#1E4D38]">
+                ✓ Profile Saved & Synced for Offline Access
+              </span>
+              <span className="text-[11px] text-[#426653]">
+                Available across local device storage and searches.
+              </span>
+            </div>
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">

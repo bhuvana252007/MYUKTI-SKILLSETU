@@ -1,7 +1,7 @@
 import React from 'react';
 import { PageView, SupportedLanguage } from '../types';
 import { TRANSLATIONS, LANGUAGE_OPTIONS } from '../translations';
-import { Search, PlusCircle, Home, HeartHandshake, Globe, BookmarkCheck, Sparkles, Database } from 'lucide-react';
+import { Search, PlusCircle, Home, HeartHandshake, Globe, BookmarkCheck, Sparkles } from 'lucide-react';
 import { PWAInstallButton } from './PWAInstallButton';
 
 interface NavbarProps {
@@ -9,7 +9,6 @@ interface NavbarProps {
   language: SupportedLanguage;
   onNavigate: (page: PageView) => void;
   onOpenLanguageSelect: () => void;
-  onOpenSupabaseModal?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -17,7 +16,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   language,
   onNavigate,
   onOpenLanguageSelect,
-  onOpenSupabaseModal,
 }) => {
   const t = TRANSLATIONS[language];
   const currentLangConfig = LANGUAGE_OPTIONS.find((l) => l.id === language) || LANGUAGE_OPTIONS[0];
@@ -52,23 +50,6 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Navigation Actions */}
           <nav className="flex items-center gap-1 sm:gap-2">
-            {/* Supabase Database Status Button */}
-            {onOpenSupabaseModal && (
-              <button
-                id="nav-supabase-status-btn"
-                onClick={onOpenSupabaseModal}
-                className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 transition-colors shadow-2xs cursor-pointer"
-                title="Connected to Supabase PostgreSQL Database (hoeusmefmobavdxphyyl)"
-              >
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
-                </span>
-                <Database className="w-3.5 h-3.5 text-emerald-700" />
-                <span>Supabase DB</span>
-              </button>
-            )}
-
             {/* PWA Install Button */}
             <PWAInstallButton variant="navbar" />
 

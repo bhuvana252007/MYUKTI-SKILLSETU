@@ -22,7 +22,6 @@ import { MyListingsPage } from './components/MyListingsPage';
 import { LanguageSelectionScreen } from './components/LanguageSelectionScreen';
 import { GeminiChatAssistant } from './components/GeminiChatAssistant';
 import { LiveVoiceModal } from './components/LiveVoiceModal';
-import { SupabaseSyncModal } from './components/SupabaseSyncModal';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { Footer } from './components/Footer';
 import { Sparkles, Radio } from 'lucide-react';
@@ -58,7 +57,6 @@ export default function App() {
   const [editingListing, setEditingListing] = useState<SellerListing | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<SkillCategory | 'All'>('All');
   const [isLiveVoiceOpen, setIsLiveVoiceOpen] = useState(false);
-  const [isSupabaseModalOpen, setIsSupabaseModalOpen] = useState(false);
 
   // Load listings on mount & sync with Supabase in background
   useEffect(() => {
@@ -176,7 +174,6 @@ export default function App() {
           setPreviousPage(currentPage);
           setCurrentPage('language-select');
         }}
-        onOpenSupabaseModal={() => setIsSupabaseModalOpen(true)}
       />
 
       {/* Main Content View with 3D Depth Page Transition */}
@@ -202,7 +199,6 @@ export default function App() {
               onListingCreated={handleListingCreated}
               editingListing={editingListing}
               onListingUpdated={handleListingUpdated}
-              onOpenSupabaseModal={() => setIsSupabaseModalOpen(true)}
             />
           )}
 
@@ -294,13 +290,6 @@ export default function App() {
         }}
       />
 
-      {/* Supabase PostgreSQL Backend Modal & Schema Setup */}
-      <SupabaseSyncModal
-        isOpen={isSupabaseModalOpen}
-        onClose={() => setIsSupabaseModalOpen(false)}
-        onSyncComplete={(updated) => setListings(updated)}
-      />
-
       {/* Rural Offline & Intermittent Network Connectivity Indicator */}
       <OfflineIndicator />
 
@@ -309,7 +298,6 @@ export default function App() {
         language={language}
         onNavigate={navigateTo} 
         onResetData={handleResetData}
-        onOpenSupabaseModal={() => setIsSupabaseModalOpen(true)}
       />
     </div>
   );

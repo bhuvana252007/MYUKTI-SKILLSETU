@@ -1,16 +1,15 @@
 import React from 'react';
 import { PageView, SupportedLanguage } from '../types';
 import { TRANSLATIONS } from '../translations';
-import { HeartHandshake, ShieldCheck, RefreshCw, Scissors, UtensilsCrossed, GraduationCap, Sparkles, Database } from 'lucide-react';
+import { HeartHandshake, ShieldCheck, RefreshCw, Scissors, UtensilsCrossed, GraduationCap, Sparkles } from 'lucide-react';
 
 interface FooterProps {
   language: SupportedLanguage;
   onNavigate: (page: PageView) => void;
   onResetData: () => void;
-  onOpenSupabaseModal?: () => void;
 }
 
-export const Footer: React.FC<FooterProps> = ({ language, onNavigate, onResetData, onOpenSupabaseModal }) => {
+export const Footer: React.FC<FooterProps> = ({ language, onNavigate, onResetData }) => {
   const t = TRANSLATIONS[language];
 
   return (
@@ -103,16 +102,6 @@ export const Footer: React.FC<FooterProps> = ({ language, onNavigate, onResetDat
         <div className="pt-6 border-t border-[#EADBCE] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#7A6455]">
           <p>© {new Date().getFullYear()} SkillSetu. {t.taglineHero || 'Empowering Skills, Enriching Lives'}</p>
           <div className="flex items-center gap-4">
-            {onOpenSupabaseModal && (
-              <button
-                onClick={onOpenSupabaseModal}
-                className="inline-flex items-center gap-1.5 text-emerald-800 font-semibold hover:text-emerald-950 transition-colors cursor-pointer"
-                title="Supabase Database Status & Schema Setup"
-              >
-                <Database className="w-3.5 h-3.5 text-emerald-600" />
-                <span>Supabase DB (hoeusmefmobavdxphyyl)</span>
-              </button>
-            )}
             <button
               onClick={onResetData}
               className="inline-flex items-center gap-1 text-[#7A6455] hover:text-[#C2542D] transition-colors cursor-pointer"
