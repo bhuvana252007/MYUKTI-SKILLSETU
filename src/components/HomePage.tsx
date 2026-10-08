@@ -14,8 +14,7 @@ import {
   MapPin, 
   CheckCircle,
   Users,
-  Mic,
-  HeartHandshake
+  Mic
 } from 'lucide-react';
 
 interface HomePageProps {
@@ -184,13 +183,27 @@ export const HomePage: React.FC<HomePageProps> = ({
               transition: 'transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1)',
             }}
           >
+            {/* SkillSetu Official App Logo Emblem */}
+            <div className="flex justify-center mb-3">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl overflow-hidden shadow-lg border-2 border-[#C2542D]/40 bg-[#3D141E] p-1 ring-4 ring-[#FBEEE8]">
+                <img 
+                  src="/app-logo.png" 
+                  alt="SkillSetu Logo - Her Voice, Her Income, Her Life" 
+                  className="w-full h-full object-cover rounded-2xl" 
+                />
+              </div>
+            </div>
+
             <h1 className="font-heritage text-5xl sm:text-7xl lg:text-8xl font-extrabold tracking-tight text-[#2B1B12] mb-3 drop-shadow-sm">
               Skill<span className="text-[#C2542D]">Setu</span>
             </h1>
 
             {/* Tagline Below in Smaller Elegant Text */}
-            <p className="font-serif-tagline text-2xl sm:text-3xl lg:text-4xl text-[#3D2517] italic font-semibold tracking-wide mb-3 drop-shadow-xs">
-              "{t.taglineHero || 'Empowering Skills, Enriching Lives'}"
+            <p 
+              className="text-2xl sm:text-3xl lg:text-4xl text-[#3D2517] tracking-wide mb-3 drop-shadow-xs font-bold not-italic"
+              style={{ fontFamily: '"Times New Roman", Times, serif', fontWeight: 'bold', fontStyle: 'normal' }}
+            >
+              "{t.taglineHero || 'her voice.her income.her life'}"
             </p>
 
             <p className="text-base sm:text-lg text-[#3D2517] font-medium max-w-2xl mx-auto leading-relaxed mb-6 drop-shadow-2xs">

@@ -1,7 +1,7 @@
 import React from 'react';
 import { SupportedLanguage } from '../types';
 import { LANGUAGE_OPTIONS } from '../translations';
-import { HeartHandshake, Globe, ArrowRight, Sparkles, Check } from 'lucide-react';
+import { Globe, ArrowRight, Sparkles, Check } from 'lucide-react';
 
 interface LanguageSelectionScreenProps {
   onSelectLanguage: (lang: SupportedLanguage) => void;
@@ -71,16 +71,20 @@ export const LanguageSelectionScreen: React.FC<LanguageSelectionScreenProps> = (
       <div className="w-full max-w-2xl bg-[#FFFDF9] rounded-3xl border-2 border-[#EADBCE] shadow-xl p-6 sm:p-10 my-6 animate-fadeIn">
         {/* App Logo & Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-[#C2542D] text-white shadow-md mb-4 ring-4 ring-[#FBEEE8]">
-            <HeartHandshake className="w-9 h-9 sm:w-11 sm:h-11" />
+          <div className="inline-flex items-center justify-center w-18 h-18 sm:w-24 sm:h-24 rounded-3xl overflow-hidden shadow-md mb-4 ring-4 ring-[#FBEEE8] bg-[#3D141E] border border-[#C2542D]/40">
+            <img 
+              src="/app-logo.png" 
+              alt="SkillSetu Logo" 
+              className="w-full h-full object-cover" 
+            />
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-bold font-heritage text-[#3D2B1F] tracking-tight mb-2">
             Skill<span className="text-[#C2542D]">Setu</span>
           </h1>
 
-          <p className="text-xs sm:text-sm font-serif italic text-[#D49B24] mb-4">
-            Empowering Skills, Enriching Lives • गाँव और शहर का हुनर सेतु
+          <p className="text-xs sm:text-sm font-serif italic text-[#C2542D] font-semibold mb-4 tracking-wide">
+            her voice.her income.her life • उसकी आवाज़ • उसकी आमदनी • उसका जीवन
           </p>
 
           <div className="h-px w-24 bg-[#EADBCE] mx-auto mb-6"></div>

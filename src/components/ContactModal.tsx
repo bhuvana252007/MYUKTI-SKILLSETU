@@ -9,7 +9,7 @@ import {
   MessageSquare, 
   Send, 
   CheckCircle, 
-  HeartHandshake,
+  ShieldCheck,
   Sparkles,
   Loader2,
   Languages,
@@ -254,7 +254,7 @@ export const ContactModal: React.FC<ContactModalProps> = ({
 
           {/* Safety & Trust Note */}
           <div className="p-4 rounded-2xl bg-[#FAF5EB] border border-[#EADBCE] text-xs text-[#5C4433] flex items-start gap-2.5">
-            <HeartHandshake className="w-5 h-5 shrink-0 text-[#D49B24] mt-0.5" />
+            <ShieldCheck className="w-5 h-5 shrink-0 text-[#1E4D38] mt-0.5" />
             <div className="leading-relaxed">
               <strong className="block text-[#3D2B1F] mb-0.5">{t.contactModal.promiseTitle}</strong>
               {t.contactModal.promiseDesc(seller.name)}

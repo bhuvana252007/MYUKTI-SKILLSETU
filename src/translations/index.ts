@@ -225,8 +225,8 @@ export interface TranslationDictionary {
 
 export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
   en: {
-    appTagline: 'Connecting Rural & Semi-Urban Women with Local Buyers',
-    taglineHero: 'Empowering Skills, Enriching Lives',
+    appTagline: 'her voice.her income.her life',
+    taglineHero: 'her voice.her income.her life',
     shgBadge: 'SHG Verified',
     nav: {
       home: 'Home',
@@ -439,8 +439,8 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
   },
 
   hi: {
-    appTagline: 'गाँव और शहर का हुनर सेतु • स्थानीय महिलाओं की सेवाएं',
-    taglineHero: 'Empowering Skills, Enriching Lives • हुनर को पहचान, जीवन को सम्मान',
+    appTagline: 'उसकी आवाज़ • उसकी आमदनी • उसका जीवन',
+    taglineHero: 'उसकी आवाज़ • उसकी आमदनी • उसका जीवन • her voice.her income.her life',
     shgBadge: 'स्वयं सहायता समूह सत्यापित',
     nav: {
       home: 'होम',
@@ -653,8 +653,8 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
   },
 
   kn: {
-    appTagline: 'ಗ್ರಾಮೀಣ ಮತ್ತು ಅರೆ-ನಗರ ಮಹಿಳೆಯರ ಕೌಶಲ್ಯ ಸೇತು • ಸ್ಥಳೀಯ ಮಹಿಳಾ ಸೇವೆಗಳು',
-    taglineHero: 'Empowering Skills, Enriching Lives • ಕೌಶಲ್ಯಕ್ಕೆ ಸನ್ಮಾನ, ಬದುಕಿಗೆ ಸಮೃದ್ಧಿ',
+    appTagline: 'ಅವಳ ಧ್ವನಿ • ಅವಳ ಆದಾಯ • ಅವಳ ಜೀವನ',
+    taglineHero: 'ಅವಳ ಧ್ವನಿ • ಅವಳ ಆದಾಯ • ಅವಳ ಜೀವನ • her voice.her income.her life',
     shgBadge: 'ಸ್ವಸಹಾಯ ಸಂಘ ದೃಢೀಕೃತ',
     nav: {
       home: 'ಮುಖಪುಟ',
@@ -867,8 +867,8 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
   },
 
   ta: {
-    appTagline: 'கிராமப்புற மற்றும் பகுதி-நகர்ப்புற பெண்களின் திறன் சேது • உள்ளூர் பெண்கள் சேவைகள்',
-    taglineHero: 'Empowering Skills, Enriching Lives • திறன்களுக்கு மதிப்பு, வாழ்க்கைக்கு வளம்',
+    appTagline: 'அவள் குரல் • அவள் வருமானம் • அவள் வாழ்க்கை',
+    taglineHero: 'அவள் குரல் • அவள் வருமானம் • அவள் வாழ்க்கை • her voice.her income.her life',
     shgBadge: 'சுயஉதவி குழு சரிபார்க்கப்பட்டது',
     nav: {
       home: 'முகப்பு',
@@ -1081,8 +1081,8 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
   },
 
   te: {
-    appTagline: 'గ్రామీణ మరియు సెమీ-అర్బన్ మహిళల నైపుణ్య సేతు • స్థానిక మహిళా సేవలు',
-    taglineHero: 'Empowering Skills, Enriching Lives • నైపుణ్యానికి గుర్తింపు, జీవితానికి వెలుగు',
+    appTagline: 'ఆమె స్వరం • ఆమె ఆదాయం • ఆమె జీవితం',
+    taglineHero: 'ఆమె స్వరం • ఆమె ఆదాయం • ఆమె జీవితం • her voice.her income.her life',
     shgBadge: 'స్వయం సహాయక సంఘం ధృవీకరించబడింది',
     nav: {
       home: 'హోమ్',

@@ -1,7 +1,7 @@
 import React from 'react';
 import { PageView, SupportedLanguage } from '../types';
 import { TRANSLATIONS, LANGUAGE_OPTIONS } from '../translations';
-import { Search, PlusCircle, Home, HeartHandshake, Globe, BookmarkCheck, Sparkles } from 'lucide-react';
+import { Search, PlusCircle, Home, Globe, BookmarkCheck, Sparkles } from 'lucide-react';
 import { PWAInstallButton } from './PWAInstallButton';
 
 interface NavbarProps {
@@ -30,8 +30,12 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={() => onNavigate('home')}
             className="flex items-center gap-2 sm:gap-3 text-left group focus:outline-none shrink-0 cursor-pointer"
           >
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-[#C2542D] text-white flex items-center justify-center shadow-sm group-hover:bg-[#A13D19] transition-colors border border-[#A13D19]/30">
-              <HeartHandshake className="w-6 h-6 sm:w-7 sm:h-7" />
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl overflow-hidden shadow-sm group-hover:shadow-md transition-all border border-[#C2542D]/30 shrink-0 bg-[#3D141E]">
+              <img 
+                src="/app-logo.png" 
+                alt="SkillSetu Logo" 
+                className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
+              />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
@@ -42,7 +46,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   {t.shgBadge}
                 </span>
               </div>
-              <p className="hidden sm:block text-[11px] sm:text-xs text-[#7A6455] font-medium tracking-wide max-w-xs truncate">
+              <p className="hidden sm:block text-[11px] sm:text-xs text-[#7A6455] font-semibold tracking-wide max-w-xs truncate">
                 {t.taglineHero || t.appTagline}
               </p>
             </div>

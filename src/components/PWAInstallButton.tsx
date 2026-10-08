@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { usePWAInstall } from '../hooks/usePWAInstall';
-import { Download, Smartphone, X, Check, HeartHandshake } from 'lucide-react';
+import { Download, Smartphone, X, Check } from 'lucide-react';
 
 interface PWAInstallButtonProps {
   variant?: 'navbar' | 'floating' | 'banner';
@@ -82,14 +82,18 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ variant = 'n
 
               {/* SkillSetu Brand Logo Tile */}
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-2xl bg-[#C2542D] text-white flex items-center justify-center shadow-md border border-[#A13D19]/30 shrink-0">
-                  <HeartHandshake className="w-7 h-7" />
+                <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-md border border-[#C2542D]/40 shrink-0 bg-[#3D141E]">
+                  <img 
+                    src="/app-logo.png" 
+                    alt="SkillSetu Logo" 
+                    className="w-full h-full object-cover" 
+                  />
                 </div>
                 <div>
                   <h3 className="text-xl font-bold font-heritage text-[#3D2B1F] leading-tight">
                     Skill<span className="text-[#C2542D]">Setu</span>
                   </h3>
-                  <p className="text-[11px] text-[#7A6455] font-medium">Add to your Home Screen</p>
+                  <p className="text-[11px] text-[#C2542D] font-medium italic">her voice.her income.her life</p>
                 </div>
               </div>
 

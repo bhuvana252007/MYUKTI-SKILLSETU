@@ -1,7 +1,7 @@
 import React from 'react';
 import { PageView, SupportedLanguage } from '../types';
 import { TRANSLATIONS } from '../translations';
-import { HeartHandshake, ShieldCheck, RefreshCw, Scissors, UtensilsCrossed, GraduationCap, Sparkles } from 'lucide-react';
+import { ShieldCheck, RefreshCw, Scissors, UtensilsCrossed, GraduationCap, Sparkles } from 'lucide-react';
 
 interface FooterProps {
   language: SupportedLanguage;
@@ -19,8 +19,12 @@ export const Footer: React.FC<FooterProps> = ({ language, onNavigate, onResetDat
           {/* Brand Info */}
           <div className="md:col-span-2">
             <div className="flex items-center gap-2.5 mb-3">
-              <div className="w-10 h-10 rounded-2xl bg-[#C2542D] text-white flex items-center justify-center shadow-xs border border-[#A13D19]/30">
-                <HeartHandshake className="w-6 h-6" />
+              <div className="w-10 h-10 rounded-2xl overflow-hidden shadow-xs border border-[#C2542D]/30 shrink-0 bg-[#3D141E]">
+                <img 
+                  src="/app-logo.png" 
+                  alt="SkillSetu Logo" 
+                  className="w-full h-full object-cover" 
+                />
               </div>
               <span className="text-2xl font-bold font-heritage text-[#3D2B1F]">
                 Skill<span className="text-[#C2542D]">Setu</span>
@@ -100,7 +104,7 @@ export const Footer: React.FC<FooterProps> = ({ language, onNavigate, onResetDat
 
         {/* Bottom bar */}
         <div className="pt-6 border-t border-[#EADBCE] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#7A6455]">
-          <p>© {new Date().getFullYear()} SkillSetu. {t.taglineHero || 'Empowering Skills, Enriching Lives'}</p>
+          <p>© {new Date().getFullYear()} SkillSetu. {t.taglineHero || 'her voice.her income.her life'}</p>
           <div className="flex items-center gap-4">
             <button
               onClick={onResetData}

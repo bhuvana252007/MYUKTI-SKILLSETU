@@ -14,9 +14,9 @@ export default defineConfig(() => {
         includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icon.svg', 'icon-maskable.svg', 'pwa-192x192.png', 'pwa-512x512.png', 'pwa-maskable-512x512.png'],
         manifest: {
           id: '/',
-          name: 'SkillSetu - Women Artisans & Micro-Entrepreneurs',
+          name: 'SkillSetu - her voice.her income.her life',
           short_name: 'SkillSetu',
-          description: 'Connects rural and semi-urban women offering local services like tailoring, cooking, tutoring, and mehendi with nearby buyers.',
+          description: 'SkillSetu: her voice.her income.her life. Connects rural and semi-urban women offering local services with nearby buyers.',
           theme_color: '#C2542D',
           background_color: '#FAF5EB',
           display: 'standalone',
