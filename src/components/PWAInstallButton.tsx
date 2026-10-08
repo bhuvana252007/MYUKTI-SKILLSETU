@@ -82,11 +82,11 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ variant = 'n
 
               {/* SkillSetu Brand Logo Tile */}
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-md border border-[#C2542D]/40 shrink-0 bg-[#3D141E]">
+                <div className="w-12 h-12 rounded-2xl overflow-hidden shadow-md border border-[#C2542D]/30 shrink-0 bg-[#FAF5EB]">
                   <img 
                     src="/app-logo.png" 
                     alt="SkillSetu Logo" 
-                    className="w-full h-full object-cover" 
+                    className="w-full h-full object-contain" 
                   />
                 </div>
                 <div>

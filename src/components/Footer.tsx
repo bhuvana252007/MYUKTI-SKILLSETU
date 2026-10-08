@@ -19,11 +19,11 @@ export const Footer: React.FC<FooterProps> = ({ language, onNavigate, onResetDat
           {/* Brand Info */}
           <div className="md:col-span-2">
             <div className="flex items-center gap-2.5 mb-3">
-              <div className="w-10 h-10 rounded-2xl overflow-hidden shadow-xs border border-[#C2542D]/30 shrink-0 bg-[#3D141E]">
+              <div className="w-10 h-10 rounded-2xl overflow-hidden shadow-xs border border-[#C2542D]/20 shrink-0 bg-[#FAF5EB]">
                 <img 
                   src="/app-logo.png" 
                   alt="SkillSetu Logo" 
-                  className="w-full h-full object-cover" 
+                  className="w-full h-full object-contain" 
                 />
               </div>
               <span className="text-2xl font-bold font-heritage text-[#3D2B1F]">

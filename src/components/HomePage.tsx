@@ -184,12 +184,12 @@ export const HomePage: React.FC<HomePageProps> = ({
             }}
           >
             {/* SkillSetu Official App Logo Emblem */}
-            <div className="flex justify-center mb-3">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl overflow-hidden shadow-lg border-2 border-[#C2542D]/40 bg-[#3D141E] p-1 ring-4 ring-[#FBEEE8]">
+            <div className="flex justify-center mb-4">
+              <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl overflow-hidden shadow-lg border-2 border-[#C2542D]/30 bg-[#FAF5EB] p-1 ring-4 ring-[#FBEEE8]">
                 <img 
                   src="/app-logo.png" 
                   alt="SkillSetu Logo - Her Voice, Her Income, Her Life" 
-                  className="w-full h-full object-cover rounded-2xl" 
+                  className="w-full h-full object-contain rounded-2xl" 
                 />
               </div>
             </div>

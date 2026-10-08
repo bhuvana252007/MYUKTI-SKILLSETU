@@ -71,11 +71,11 @@ export const LanguageSelectionScreen: React.FC<LanguageSelectionScreenProps> = (
       <div className="w-full max-w-2xl bg-[#FFFDF9] rounded-3xl border-2 border-[#EADBCE] shadow-xl p-6 sm:p-10 my-6 animate-fadeIn">
         {/* App Logo & Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-18 h-18 sm:w-24 sm:h-24 rounded-3xl overflow-hidden shadow-md mb-4 ring-4 ring-[#FBEEE8] bg-[#3D141E] border border-[#C2542D]/40">
+          <div className="inline-flex items-center justify-center w-20 h-20 sm:w-24 sm:h-24 rounded-3xl overflow-hidden shadow-md mb-4 ring-4 ring-[#FBEEE8] bg-[#FAF5EB] border border-[#C2542D]/20">
             <img 
               src="/app-logo.png" 
               alt="SkillSetu Logo" 
-              className="w-full h-full object-cover" 
+              className="w-full h-full object-contain" 
             />
           </div>
 

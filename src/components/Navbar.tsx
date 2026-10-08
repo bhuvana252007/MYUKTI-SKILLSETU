@@ -30,11 +30,11 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={() => onNavigate('home')}
             className="flex items-center gap-2 sm:gap-3 text-left group focus:outline-none shrink-0 cursor-pointer"
           >
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl overflow-hidden shadow-sm group-hover:shadow-md transition-all border border-[#C2542D]/30 shrink-0 bg-[#3D141E]">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl overflow-hidden shadow-sm group-hover:shadow-md transition-all border border-[#C2542D]/20 shrink-0 bg-[#FAF5EB]">
               <img 
                 src="/app-logo.png" 
                 alt="SkillSetu Logo" 
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
+                className="w-full h-full object-contain group-hover:scale-105 transition-transform" 
               />
             </div>
             <div>

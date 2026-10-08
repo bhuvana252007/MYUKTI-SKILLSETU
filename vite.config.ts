@@ -11,7 +11,7 @@ export default defineConfig(() => {
       tailwindcss(),
       VitePWA({
         registerType: 'autoUpdate',
-        includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'icon.svg', 'icon-maskable.svg', 'pwa-192x192.png', 'pwa-512x512.png', 'pwa-maskable-512x512.png'],
+        includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'app-logo.png', 'icon.svg', 'icon-maskable.svg', 'pwa-192x192.png', 'pwa-512x512.png', 'pwa-maskable-512x512.png'],
         manifest: {
           id: '/',
           name: 'SkillSetu - her voice.her income.her life',
@@ -40,6 +40,12 @@ export default defineConfig(() => {
               sizes: '512x512',
               type: 'image/png',
               purpose: 'maskable',
+            },
+            {
+              src: '/app-logo.png',
+              sizes: '1254x1254',
+              type: 'image/png',
+              purpose: 'any',
             },
           ],
         },
