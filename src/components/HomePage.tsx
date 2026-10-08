@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { PageView, SkillCategory, SellerListing, SupportedLanguage } from '../types';
 import { TRANSLATIONS } from '../translations';
 import { BotanicalCorner, BotanicalDivider } from './BotanicalAccents';
 import heroIllustration from '../assets/images/indian_women_folk_art_hero_1788506998271.jpg';
+import { SellerCard3D } from './SellerCard3D';
 import { 
   Scissors, 
   UtensilsCrossed, 
@@ -33,6 +34,60 @@ export const HomePage: React.FC<HomePageProps> = ({
   featuredListings,
 }) => {
   const t = TRANSLATIONS[language];
+
+  // 3D Parallax & Tilt for Hero Section
+  const heroRef = useRef<HTMLElement>(null);
+  const [heroTilt, setHeroTilt] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+  const [scrollY, setScrollY] = useState(0);
+
+  const handleHeroMouseMove = useCallback((e: React.MouseEvent<HTMLElement>) => {
+    if (!heroRef.current) return;
+    const rect = heroRef.current.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+    // Normalized tilt (-1 to +1)
+    const nx = ((e.clientX - rect.left) / rect.width - 0.5) * 2;
+    const ny = ((e.clientY - rect.top) / rect.height - 0.5) * 2;
+    setHeroTilt({
+      x: Number(nx.toFixed(3)),
+      y: Number(ny.toFixed(3)),
+    });
+  }, []);
+
+  const handleHeroMouseLeave = useCallback(() => {
+    setHeroTilt({ x: 0, y: 0 });
+  }, []);
+
+  useEffect(() => {
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          if (window.scrollY < 1000) {
+            setScrollY(window.scrollY);
+          }
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const getCategoryIcon = (cat: SkillCategory) => {
+    switch (cat) {
+      case 'Tailoring':
+        return <Scissors className="w-3.5 h-3.5 text-[#C2542D]" />;
+      case 'Cooking':
+        return <UtensilsCrossed className="w-3.5 h-3.5 text-[#D49B24]" />;
+      case 'Tutoring':
+        return <GraduationCap className="w-3.5 h-3.5 text-[#1E4D38]" />;
+      case 'Mehendi':
+        return <Sparkles className="w-3.5 h-3.5 text-[#A13D19]" />;
+      default:
+        return <Scissors className="w-3.5 h-3.5 text-[#C2542D]" />;
+    }
+  };
 
   const categoryConfigs: {
     category: SkillCategory;
@@ -73,10 +128,22 @@ export const HomePage: React.FC<HomePageProps> = ({
 
   return (
     <div className="w-full pb-20 bg-[#FAF5EB] text-[#2A221E]">
-      {/* Heritage-Inspired Hero Section with Full-Width Illustration Background */}
-      <section className="relative overflow-hidden pt-12 pb-16 sm:pt-16 sm:pb-24 px-4 sm:px-6 lg:px-8 border-b border-[#EADBCE]">
-        {/* Full-Width Heritage Illustration Background */}
-        <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+      {/* Heritage-Inspired Hero Section with Full-Width Illustration Background and 3D Parallax Tilt */}
+      <section 
+        ref={heroRef}
+        onMouseMove={handleHeroMouseMove}
+        onMouseLeave={handleHeroMouseLeave}
+        className="relative overflow-hidden pt-12 pb-16 sm:pt-16 sm:pb-24 px-4 sm:px-6 lg:px-8 border-b border-[#EADBCE] preserve-3d"
+        style={{ perspective: '1200px' }}
+      >
+        {/* Full-Width Heritage Illustration Background Layer with 3D Depth Parallax */}
+        <div 
+          className="absolute inset-0 z-0 overflow-hidden pointer-events-none hero-parallax-bg"
+          style={{
+            transform: `translate3d(${-heroTilt.x * 16}px, ${-heroTilt.y * 12 + scrollY * 0.22}px, -30px) scale(1.10)`,
+            transition: 'transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1)',
+          }}
+        >
           <img
             src={heroIllustration}
             alt="Indian heritage folk art illustration of women artisans"
@@ -94,62 +161,92 @@ export const HomePage: React.FC<HomePageProps> = ({
           />
         </div>
 
-        <div className="relative z-10 max-w-4xl mx-auto text-center">
-          {/* Trust Badge with Botanical Leaf Icon */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FFFDF9]/95 backdrop-blur-xs border border-[#C7E4D3] text-[#1E4D38] text-xs sm:text-sm font-bold mb-5 shadow-sm">
-            <ShieldCheck className="w-4 h-4 text-[#1E4D38]" />
-            <span>{t.home.heroBadge}</span>
+        <div className="relative z-10 max-w-4xl mx-auto text-center preserve-3d">
+          {/* Trust Badge with Botanical Leaf Icon (Middle Parallax Layer) */}
+          <div 
+            className="hero-parallax-mid inline-block"
+            style={{
+              transform: `translate3d(${heroTilt.x * 7}px, ${heroTilt.y * 5 - scrollY * 0.04}px, 15px)`,
+              transition: 'transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1)',
+            }}
+          >
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#FFFDF9]/95 backdrop-blur-xs border border-[#C7E4D3] text-[#1E4D38] text-xs sm:text-sm font-bold mb-5 shadow-sm">
+              <ShieldCheck className="w-4 h-4 text-[#1E4D38]" />
+              <span>{t.home.heroBadge}</span>
+            </div>
           </div>
 
-          {/* Large Elegant Serif Heading for App Name with High Contrast */}
-          <h1 className="font-heritage text-5xl sm:text-7xl lg:text-8xl font-extrabold tracking-tight text-[#2B1B12] mb-3 drop-shadow-sm">
-            Skill<span className="text-[#C2542D]">Setu</span>
-          </h1>
+          {/* Large Elegant Serif Heading & Tagline (Foreground Parallax Layer) */}
+          <div
+            className="hero-parallax-fore"
+            style={{
+              transform: `translate3d(${heroTilt.x * 12}px, ${heroTilt.y * 9 - scrollY * 0.08}px, 30px)`,
+              transition: 'transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1)',
+            }}
+          >
+            <h1 className="font-heritage text-5xl sm:text-7xl lg:text-8xl font-extrabold tracking-tight text-[#2B1B12] mb-3 drop-shadow-sm">
+              Skill<span className="text-[#C2542D]">Setu</span>
+            </h1>
 
-          {/* Tagline Below in Smaller Elegant Text */}
-          <p className="font-serif-tagline text-2xl sm:text-3xl lg:text-4xl text-[#3D2517] italic font-semibold tracking-wide mb-3 drop-shadow-xs">
-            "{t.taglineHero || 'Empowering Skills, Enriching Lives'}"
-          </p>
+            {/* Tagline Below in Smaller Elegant Text */}
+            <p className="font-serif-tagline text-2xl sm:text-3xl lg:text-4xl text-[#3D2517] italic font-semibold tracking-wide mb-3 drop-shadow-xs">
+              "{t.taglineHero || 'Empowering Skills, Enriching Lives'}"
+            </p>
 
-          <p className="text-base sm:text-lg text-[#3D2517] font-medium max-w-2xl mx-auto leading-relaxed mb-6 drop-shadow-2xs">
-            {t.appTagline}
-          </p>
-
-          {/* Decorative Botanical Divider */}
-          <BotanicalDivider className="mb-6 sm:mb-8" />
-
-          {/* Four Traditional Women's Skills Highlights */}
-          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 max-w-3xl mx-auto mb-6">
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FFFDF9]/95 backdrop-blur-xs text-[#3D2B1F] text-xs sm:text-sm font-semibold border border-[#EADBCE] shadow-xs">
-              <Scissors className="w-3.5 h-3.5 text-[#C2542D]" />
-              <span>{t.categories.Tailoring?.title} ({t.categories.Tailoring?.subtitle})</span>
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FFFDF9]/95 backdrop-blur-xs text-[#3D2B1F] text-xs sm:text-sm font-semibold border border-[#EADBCE] shadow-xs">
-              <UtensilsCrossed className="w-3.5 h-3.5 text-[#D49B24]" />
-              <span>{t.categories.Cooking?.title} ({t.categories.Cooking?.subtitle})</span>
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FFFDF9]/95 backdrop-blur-xs text-[#3D2B1F] text-xs sm:text-sm font-semibold border border-[#EADBCE] shadow-xs">
-              <Sparkles className="w-3.5 h-3.5 text-[#C2542D]" />
-              <span>{t.categories.Mehendi?.title} ({t.categories.Mehendi?.subtitle})</span>
-            </span>
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FFFDF9]/95 backdrop-blur-xs text-[#3D2B1F] text-xs sm:text-sm font-semibold border border-[#EADBCE] shadow-xs">
-              <GraduationCap className="w-3.5 h-3.5 text-[#1E4D38]" />
-              <span>{t.categories.Tutoring?.title} ({t.categories.Tutoring?.subtitle})</span>
-            </span>
+            <p className="text-base sm:text-lg text-[#3D2517] font-medium max-w-2xl mx-auto leading-relaxed mb-6 drop-shadow-2xs">
+              {t.appTagline}
+            </p>
           </div>
 
-          {/* Subtitle / Description */}
-          <p className="text-base sm:text-lg text-[#3D2517] font-medium max-w-2xl mx-auto leading-relaxed mb-8 drop-shadow-2xs">
-            {t.home.heroSubtitle}
-          </p>
+          {/* Decorative Botanical Divider & Skill Highlights (Mid Parallax Layer) */}
+          <div
+            className="hero-parallax-mid"
+            style={{
+              transform: `translate3d(${heroTilt.x * 9}px, ${heroTilt.y * 7 - scrollY * 0.05}px, 20px)`,
+              transition: 'transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1)',
+            }}
+          >
+            <BotanicalDivider className="mb-6 sm:mb-8" />
 
-          {/* TWO CLEAR CALL-TO-ACTION BUTTONS (Terracotta & Gold Tones) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-2xl mx-auto mb-8">
+            {/* Four Traditional Women's Skills Highlights */}
+            <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 max-w-3xl mx-auto mb-6">
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FFFDF9]/95 backdrop-blur-xs text-[#3D2B1F] text-xs sm:text-sm font-semibold border border-[#EADBCE] shadow-xs">
+                <Scissors className="w-3.5 h-3.5 text-[#C2542D]" />
+                <span>{t.categories.Tailoring?.title} ({t.categories.Tailoring?.subtitle})</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FFFDF9]/95 backdrop-blur-xs text-[#3D2B1F] text-xs sm:text-sm font-semibold border border-[#EADBCE] shadow-xs">
+                <UtensilsCrossed className="w-3.5 h-3.5 text-[#D49B24]" />
+                <span>{t.categories.Cooking?.title} ({t.categories.Cooking?.subtitle})</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FFFDF9]/95 backdrop-blur-xs text-[#3D2B1F] text-xs sm:text-sm font-semibold border border-[#EADBCE] shadow-xs">
+                <Sparkles className="w-3.5 h-3.5 text-[#C2542D]" />
+                <span>{t.categories.Mehendi?.title} ({t.categories.Mehendi?.subtitle})</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FFFDF9]/95 backdrop-blur-xs text-[#3D2B1F] text-xs sm:text-sm font-semibold border border-[#EADBCE] shadow-xs">
+                <GraduationCap className="w-3.5 h-3.5 text-[#1E4D38]" />
+                <span>{t.categories.Tutoring?.title} ({t.categories.Tutoring?.subtitle})</span>
+              </span>
+            </div>
+
+            {/* Subtitle / Description */}
+            <p className="text-base sm:text-lg text-[#3D2517] font-medium max-w-2xl mx-auto leading-relaxed mb-8 drop-shadow-2xs">
+              {t.home.heroSubtitle}
+            </p>
+          </div>
+
+          {/* TWO CLEAR CALL-TO-ACTION BUTTONS (Terracotta & Gold Tones with 3D Depth) */}
+          <div 
+            className="hero-parallax-fore grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-2xl mx-auto mb-8 preserve-3d"
+            style={{
+              transform: `translate3d(${heroTilt.x * 16}px, ${heroTilt.y * 11 - scrollY * 0.1}px, 40px)`,
+              transition: 'transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1)',
+            }}
+          >
             {/* Button 1: I offer a service (Terracotta Tone) */}
             <button
               id="hero-offer-service-btn"
               onClick={() => onNavigate('seller-listing')}
-              className="group relative flex flex-col items-center justify-center p-6 sm:p-7 rounded-2xl bg-[#C2542D] hover:bg-[#A13D19] text-white shadow-lg hover:shadow-xl transition-all transform active:scale-[0.98] border-2 border-[#A13D19] text-left cursor-pointer"
+              className="group relative flex flex-col items-center justify-center p-6 sm:p-7 rounded-2xl bg-[#C2542D] hover:bg-[#A13D19] text-white shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-1.5 active:translate-y-0.5 active:scale-[0.98] border-2 border-[#A13D19] text-left cursor-pointer preserve-3d"
             >
               <div className="w-14 h-14 rounded-full bg-white/20 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                 <Scissors className="w-7 h-7 text-white" />
@@ -169,7 +266,7 @@ export const HomePage: React.FC<HomePageProps> = ({
             <button
               id="hero-need-service-btn"
               onClick={() => onNavigate('buyer-search')}
-              className="group relative flex flex-col items-center justify-center p-6 sm:p-7 rounded-2xl bg-[#D49B24] hover:bg-[#B57E12] text-[#24170F] shadow-lg hover:shadow-xl transition-all transform active:scale-[0.98] border-2 border-[#B57E12] text-left cursor-pointer"
+              className="group relative flex flex-col items-center justify-center p-6 sm:p-7 rounded-2xl bg-[#D49B24] hover:bg-[#B57E12] text-[#24170F] shadow-lg hover:shadow-2xl transition-all transform hover:-translate-y-1.5 active:translate-y-0.5 active:scale-[0.98] border-2 border-[#B57E12] text-left cursor-pointer preserve-3d"
             >
               <div className="w-14 h-14 rounded-full bg-[#24170F]/15 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                 <Users className="w-7 h-7 text-[#24170F]" />
@@ -187,7 +284,13 @@ export const HomePage: React.FC<HomePageProps> = ({
           </div>
 
           {/* Quick Voice Assistant Callout */}
-          <div className="inline-flex items-center justify-center gap-2 text-xs sm:text-sm text-[#3D2517] font-semibold bg-[#FFFDF9]/95 backdrop-blur-xs px-4 py-2 rounded-full border border-[#EADBCE] shadow-sm">
+          <div 
+            className="hero-parallax-mid inline-flex items-center justify-center gap-2 text-xs sm:text-sm text-[#3D2517] font-semibold bg-[#FFFDF9]/95 backdrop-blur-xs px-4 py-2 rounded-full border border-[#EADBCE] shadow-sm"
+            style={{
+              transform: `translate3d(${heroTilt.x * 6}px, ${heroTilt.y * 4 - scrollY * 0.03}px, 20px)`,
+              transition: 'transform 200ms cubic-bezier(0.2, 0.8, 0.2, 1)',
+            }}
+          >
             <Mic className="w-4 h-4 text-[#C2542D]" />
             <span>{t.home.voiceTip}</span>
           </div>
@@ -281,63 +384,13 @@ export const HomePage: React.FC<HomePageProps> = ({
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {featuredListings.slice(0, 3).map((seller) => (
-              <div
+              <SellerCard3D
                 key={seller.id}
-                onClick={() => onSelectListing(seller)}
-                className="bg-[#FFFDF9] rounded-2xl overflow-hidden border border-[#EADBCE] hover:border-[#1E4D38] hover:shadow-md transition-all cursor-pointer flex flex-col"
-              >
-                <div className="relative h-50 w-full bg-[#EFE4D3] overflow-hidden">
-                  <img
-                    src={seller.photo}
-                    alt={seller.name}
-                    className="w-full h-full object-cover object-center hover:scale-105 transition-transform duration-300"
-                    referrerPolicy="no-referrer"
-                    onError={(e) => {
-                      (e.target as HTMLElement).style.display = 'none';
-                    }}
-                  />
-                  {seller.isShgVerified && (
-                    <div className="absolute top-3 left-3 bg-[#EEF6F2] text-[#1E4D38] border border-[#C7E4D3] px-2.5 py-1 rounded-full text-xs font-bold flex items-center gap-1 shadow-xs">
-                      <CheckCircle className="w-3.5 h-3.5 fill-[#1E4D38] text-white" />
-                      <span>{t.shgBadge}</span>
-                    </div>
-                  )}
-                  <div className="absolute bottom-3 right-3 bg-[#3D2B1F]/85 backdrop-blur-xs text-[#FFFDF9] px-2.5 py-1 rounded-md text-xs font-semibold">
-                    {t.categories[seller.category]?.title || seller.category}
-                  </div>
-                </div>
-
-                <div className="p-5 flex-1 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-baseline justify-between mb-1">
-                      <h3 className="text-xl font-bold font-display text-[#3D2B1F]">
-                        {seller.name}
-                      </h3>
-                      <span className="text-base font-bold text-[#C2542D]">
-                        {seller.price}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-1.5 text-xs text-[#6B5749] mb-3">
-                      <MapPin className="w-3.5 h-3.5 text-[#C2542D] shrink-0" />
-                      <span className="truncate">{seller.location}</span>
-                    </div>
-
-                    <p className="text-sm text-[#5C4433] line-clamp-2 leading-relaxed">
-                      {seller.description}
-                    </p>
-                  </div>
-
-                  <div className="mt-4 pt-3.5 border-t border-[#F1E6D8] flex items-center justify-between">
-                    <span className="text-xs text-[#1E4D38] font-semibold flex items-center gap-1">
-                      <ShieldCheck className="w-3.5 h-3.5" /> {t.home.directContactBadge}
-                    </span>
-                    <span className="text-xs font-bold text-[#1E4D38] hover:underline">
-                      {t.home.viewProfileArrow}
-                    </span>
-                  </div>
-                </div>
-              </div>
+                seller={seller}
+                language={language}
+                onSelect={onSelectListing}
+                categoryIcon={getCategoryIcon(seller.category)}
+              />
             ))}
           </div>
         </section>

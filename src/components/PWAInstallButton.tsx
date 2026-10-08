@@ -1,0 +1,123 @@
+import React, { useState } from 'react';
+import { usePWAInstall } from '../hooks/usePWAInstall';
+import { Download, Smartphone, X, Check } from 'lucide-react';
+
+interface PWAInstallButtonProps {
+  variant?: 'navbar' | 'floating' | 'banner';
+}
+
+export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ variant = 'navbar' }) => {
+  const { isInstallable, isInstalled, isIOS, install } = usePWAInstall();
+  const [showIOSGuide, setShowIOSGuide] = useState(false);
+  const [isInstalling, setIsInstalling] = useState(false);
+
+  // If already running as an installed PWA / standalone, suppress the prompt
+  if (isInstalled) {
+    return null;
+  }
+
+  const handleInstallClick = async () => {
+    setIsInstalling(true);
+    try {
+      await install();
+    } finally {
+      setIsInstalling(false);
+    }
+  };
+
+  // Chromium / Android / Desktop flow
+  if (isInstallable) {
+    if (variant === 'navbar') {
+      return (
+        <button
+          id="pwa-install-nav-btn"
+          onClick={handleInstallClick}
+          disabled={isInstalling}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#C2542D] hover:bg-[#A13D19] text-white font-bold text-xs shadow-xs hover:shadow-md transition-all cursor-pointer"
+          title="Install SkillSetu app for instant offline access"
+        >
+          <Download className="w-3.5 h-3.5" />
+          <span className="hidden sm:inline">Install App</span>
+          <span className="sm:hidden">Install</span>
+        </button>
+      );
+    }
+
+    return (
+      <button
+        onClick={handleInstallClick}
+        disabled={isInstalling}
+        className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#C2542D] hover:bg-[#A13D19] text-white font-bold text-xs sm:text-sm shadow-md transition-all cursor-pointer"
+      >
+        <Download className="w-4 h-4" />
+        <span>Install SkillSetu App</span>
+      </button>
+    );
+  }
+
+  // iOS Safari flow (beforeinstallprompt is not supported by WebKit)
+  if (isIOS) {
+    return (
+      <>
+        <button
+          id="pwa-install-ios-btn"
+          onClick={() => setShowIOSGuide(true)}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#FAF5EB] hover:bg-[#F2E6D5] text-[#3D2B1F] border border-[#EADBCE] font-bold text-xs transition-colors cursor-pointer"
+          title="Install on iPhone / iPad"
+        >
+          <Smartphone className="w-3.5 h-3.5 text-[#C2542D]" />
+          <span className="hidden sm:inline">Install on iOS</span>
+          <span className="sm:hidden">Install</span>
+        </button>
+
+        {showIOSGuide && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
+            <div className="w-full max-w-sm rounded-3xl bg-[#FFFDF9] border-2 border-[#EADBCE] p-6 shadow-2xl text-[#2B1B12] relative">
+              <button
+                onClick={() => setShowIOSGuide(false)}
+                className="absolute top-4 right-4 p-1.5 rounded-full hover:bg-stone-200 text-stone-600 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="w-12 h-12 rounded-2xl bg-[#FBEEE8] text-[#C2542D] flex items-center justify-center mb-3">
+                <Smartphone className="w-6 h-6" />
+              </div>
+
+              <h3 className="text-xl font-bold font-heritage text-[#3D2B1F]">
+                Install SkillSetu on iPhone / iPad
+              </h3>
+              <p className="mt-1 text-xs text-[#6B5749] mb-4">
+                Enjoy full offline listings & quick access directly from your home screen:
+              </p>
+
+              <div className="space-y-3 text-xs text-[#3D2B1F]">
+                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[#FAF5EB] border border-[#EADBCE]">
+                  <span className="w-5 h-5 rounded-full bg-[#C2542D] text-white flex items-center justify-center font-bold text-[11px] shrink-0">1</span>
+                  <span>Tap the <strong>Share</strong> button at the bottom of Safari (square with an up arrow).</span>
+                </div>
+                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[#FAF5EB] border border-[#EADBCE]">
+                  <span className="w-5 h-5 rounded-full bg-[#C2542D] text-white flex items-center justify-center font-bold text-[11px] shrink-0">2</span>
+                  <span>Scroll down the menu and tap <strong>Add to Home Screen</strong>.</span>
+                </div>
+                <div className="flex items-start gap-2.5 p-3 rounded-xl bg-[#FAF5EB] border border-[#EADBCE]">
+                  <span className="w-5 h-5 rounded-full bg-[#1E4D38] text-white flex items-center justify-center font-bold text-[11px] shrink-0">3</span>
+                  <span>Tap <strong>Add</strong> in the top-right corner to finish.</span>
+                </div>
+              </div>
+
+              <button
+                onClick={() => setShowIOSGuide(false)}
+                className="mt-5 w-full rounded-xl bg-[#C2542D] hover:bg-[#A13D19] py-2.5 text-xs font-bold text-white transition-colors cursor-pointer"
+              >
+                Got It
+              </button>
+            </div>
+          </div>
+        )}
+      </>
+    );
+  }
+
+  return null;
+};

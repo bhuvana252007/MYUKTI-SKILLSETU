@@ -1,7 +1,9 @@
 import express from 'express';
+import http from 'http';
 import path from 'path';
 import { createServer as createViteServer } from 'vite';
-import { GoogleGenAI, Type } from '@google/genai';
+import { GoogleGenAI, Modality, Type } from '@google/genai';
+import { WebSocketServer, WebSocket } from 'ws';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -9,14 +11,14 @@ dotenv.config();
 const app = express();
 const PORT = 3000;
 
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '25mb' }));
 
 // Lazy initialization of Gemini client
 let aiClient: GoogleGenAI | null = null;
 function getAIClient(): GoogleGenAI | null {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
-    console.warn('GEMINI_API_KEY is not set. Translation API will use fallback.');
+    console.warn('GEMINI_API_KEY is not set.');
     return null;
   }
   if (!aiClient) {
@@ -41,8 +43,49 @@ const LANGUAGE_NAME_MAP: Record<string, string> = {
 };
 
 // Health endpoint
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', hasGeminiKey: Boolean(process.env.GEMINI_API_KEY) });
+app.get('/api/health', (_req, res) => {
+  res.json({
+    status: 'ok',
+    hasGeminiKey: Boolean(process.env.GEMINI_API_KEY),
+    features: ['maps_grounding', 'search_grounding', 'live_audio', 'audio_transcription', 'multi_turn_chat']
+  });
+});
+
+// Supabase backend status endpoint
+app.get('/api/supabase/status', async (_req, res) => {
+  const projectId = 'hoeusmefmobavdxphyyl';
+  const supabaseUrl = process.env.VITE_SUPABASE_URL || `https://${projectId}.supabase.co`;
+  const anonKey = process.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_76xuAe2LYj-dVVDHjSPetg_eDf5NEJo';
+
+  try {
+    const checkRes = await fetch(`${supabaseUrl}/rest/v1/profiles?select=id&limit=1`, {
+      headers: {
+        'apikey': anonKey,
+        'Authorization': `Bearer ${anonKey}`,
+      },
+    });
+
+    const status = checkRes.status;
+    const body = await checkRes.json().catch(() => ({}));
+    const tableFound = status === 200;
+
+    res.json({
+      connected: status !== 0 && status < 500,
+      projectId,
+      url: supabaseUrl,
+      profilesTableFound: tableFound,
+      httpStatus: status,
+      details: body,
+    });
+  } catch (err: any) {
+    res.json({
+      connected: false,
+      projectId,
+      url: supabaseUrl,
+      profilesTableFound: false,
+      error: err?.message,
+    });
+  }
 });
 
 // Translation API endpoint using Gemini API (gemini-3.8-flash)
@@ -80,7 +123,7 @@ EXTRACTION AND NORMALIZATION RULES:
 Return ONLY a valid JSON object matching the requested schema.`;
 
 // Endpoint to view the Gemini extraction prompt
-app.get('/api/extract-prompt', (req, res) => {
+app.get('/api/extract-prompt', (_req, res) => {
   res.json({ prompt: EXTRACTION_SYSTEM_PROMPT });
 });
 
@@ -115,7 +158,7 @@ Detected active app language context: ${spokenLanguage}
 Extract the structured listing fields in JSON according to your instructions.`;
 
     const geminiCall = ai.models.generateContent({
-      model: 'gemini-3.6-flash',
+      model: 'gemini-3.8-flash',
       contents: [
         {
           role: 'user',
@@ -209,7 +252,6 @@ Extract the structured listing fields in JSON according to your instructions.`;
     });
   } catch (error: any) {
     console.warn('Notice in /api/extract-listing, providing heuristic fallback:', error?.message || error);
-    // Graceful fallback to regex parser so user is never blocked
     const fallback = extractListingFallback(req.body.transcript || '', req.body.spokenLanguage || 'auto');
     return res.json({
       success: true,
@@ -230,13 +272,11 @@ function extractListingFallback(text: string, language: string) {
   let location = '';
   let description = '';
 
-  // Name patterns
   const nameMatch = text.match(/(?:nanna\s+hesru|nanna\s+hesaru|mera\s+naam|en\s+peyar|naa\s+peru|my\s+name\s+is|i\s+am)\s+([A-Za-z\u0900-\u0D7F]+)/i);
   if (nameMatch && nameMatch[1]) {
     name = nameMatch[1].replace(/ji|amma|akka|devi|bai/gi, '').trim();
   }
 
-  // Price patterns
   const priceMatch = text.match(/(?:₹|rs\.?|rupees|roopaayi|rooba|rupaye)?\s*(\d+)\s*(?:₹|rs\.?|rupees|roopaayi|rooba|rupaye)?/i);
   if (priceMatch && priceMatch[1]) {
     price = `₹${priceMatch[1]}`;
@@ -246,7 +286,6 @@ function extractListingFallback(text: string, language: string) {
     else if (lower.includes('hour') || lower.includes('gante')) price += '/hour';
   }
 
-  // Category & Description heuristics
   if (lower.includes('blouse') || lower.includes('salwar') || lower.includes('kurti') || lower.includes('hoLi') || lower.includes('silai') || lower.includes('stitch') || lower.includes('sew') || lower.includes('suit')) {
     category = 'Tailoring';
     description = 'Blouse and salwar stitching';
@@ -264,7 +303,6 @@ function extractListingFallback(text: string, language: string) {
     description = text.slice(0, 80);
   }
 
-  // Location heuristics
   const locMatch = text.match(/(?:alli\s+iddini|alli\s+iddeene|mein\s+mera\s+ghar|mein\s+rehti|la\s+irukken|lo\s+untanu|living\s+in|staying\s+in|near|at)\s+([A-Za-z\u0900-\u0D7F\s]+)/i) ||
                    text.match(/([A-Za-z\u0900-\u0D7F]+)\s*(?:alli|mein|la|lo)/i);
   if (locMatch && locMatch[1]) {
@@ -298,7 +336,6 @@ app.post('/api/translate', async (req, res) => {
     const targetLangName = LANGUAGE_NAME_MAP[targetLanguage] || targetLanguage;
     const sourceLangName = LANGUAGE_NAME_MAP[sourceLanguage] || sourceLanguage;
 
-    // If source and target are identical and not auto, return as is
     if (sourceLanguage !== 'auto' && sourceLanguage === targetLanguage) {
       if (fields) {
         return res.json({ success: true, translatedFields: fields });
@@ -308,7 +345,6 @@ app.post('/api/translate', async (req, res) => {
 
     const ai = getAIClient();
 
-    // If no AI client available, return original as fallback
     if (!ai) {
       if (fields) {
         return res.json({ success: true, translatedFields: fields, fallback: true });
@@ -316,7 +352,6 @@ app.post('/api/translate', async (req, res) => {
       return res.json({ success: true, translatedText: text, fallback: true });
     }
 
-    // Case 1: Multiple fields (e.g. name, location, description for SellerListing)
     if (fields && typeof fields === 'object') {
       const keysToTranslate = Object.keys(fields).filter((k) => typeof fields[k] === 'string' && fields[k].trim().length > 0);
       
@@ -338,7 +373,7 @@ Input JSON:
 ${JSON.stringify(inputObject, null, 2)}`;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3.6-flash',
+        model: 'gemini-3.8-flash',
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -358,7 +393,6 @@ ${JSON.stringify(inputObject, null, 2)}`;
       return res.json({ success: true, translatedFields });
     }
 
-    // Case 2: Single string translation (e.g. buyer inquiry note)
     if (typeof text === 'string') {
       if (!text.trim()) {
         return res.json({ success: true, translatedText: text });
@@ -372,7 +406,7 @@ Text to translate:
 ${text}`;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3.6-flash',
+        model: 'gemini-3.8-flash',
         contents: prompt,
         config: {
           temperature: 0.2,
@@ -386,9 +420,226 @@ ${text}`;
     return res.status(400).json({ error: 'Missing "text" or "fields" in request body' });
   } catch (error: any) {
     console.warn('Notice in /api/translate, providing original fallback:', error?.message || error);
-    // Return graceful fallback rather than 500 error to ensure uninterrupted user flow
     const fallback = req.body.fields ? { translatedFields: req.body.fields } : { translatedText: req.body.text };
     return res.json({ success: true, ...fallback, fallback: true, notice: error?.message || 'Translation fallback' });
+  }
+});
+
+// Audio Transcription endpoint using gemini-3.5-transcribe
+app.post('/api/transcribe', async (req, res) => {
+  try {
+    const { audio, mimeType = 'audio/webm', prompt } = req.body;
+    if (!audio || typeof audio !== 'string') {
+      return res.status(400).json({ error: 'Missing audio base64 data in request body' });
+    }
+
+    const ai = getAIClient();
+    if (!ai) {
+      return res.status(500).json({ error: 'Gemini API is not configured on the server.' });
+    }
+
+    // Clean base64 string if data URI header exists
+    const cleanBase64 = audio.includes(',') ? audio.split(',')[1] : audio;
+
+    const audioPart = {
+      inlineData: {
+        mimeType: mimeType.split(';')[0] || 'audio/webm',
+        data: cleanBase64,
+      },
+    };
+
+    const instructionText = prompt ||
+      'Transcribe this audio recording verbatim. It contains spoken speech which may be in Kannada, Hindi, Tamil, Telugu, English, or mixed vernacular. Maintain names, numbers, prices, and locations accurately. Output ONLY the clean transcribed text.';
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.5-transcribe',
+      contents: {
+        parts: [
+          audioPart,
+          { text: instructionText }
+        ]
+      },
+    });
+
+    const transcribedText = (response.text || '').trim();
+    return res.json({
+      success: true,
+      text: transcribedText,
+      modelUsed: 'gemini-3.5-transcribe'
+    });
+  } catch (error: any) {
+    console.error('Error in /api/transcribe:', error);
+    return res.status(500).json({
+      success: false,
+      error: error?.message || 'Audio transcription failed'
+    });
+  }
+});
+
+// Multi-turn Gemini Chatbot with Roles, Search Grounding and Maps Grounding
+app.post('/api/chat', async (req, res) => {
+  try {
+    const {
+      messages,
+      role = 'general',
+      useSearch = false,
+      useMaps = false,
+      userLocation = null,
+    } = req.body;
+
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return res.status(400).json({ error: 'Messages array is required' });
+    }
+
+    const ai = getAIClient();
+    if (!ai) {
+      return res.status(500).json({ error: 'Gemini API is not configured on the server.' });
+    }
+
+    // Determine model based on task complexity:
+    // Complex tasks: gemini-3.1-pro-preview
+    // General tasks: gemini-3.5-flash
+    // Fast tasks: gemini-3.1-flash-lite
+    let selectedModel = 'gemini-3.5-flash';
+    if (role === 'advisor') {
+      selectedModel = 'gemini-3.1-pro-preview';
+    } else if (role === 'fast') {
+      selectedModel = 'gemini-3.1-flash-lite';
+    } else {
+      selectedModel = 'gemini-3.5-flash';
+    }
+
+    // Define System Instructions for specific chatbot roles
+    let systemInstruction = '';
+    if (role === 'advisor') {
+      systemInstruction = `You are Setu Advisory Saheli, a senior Self-Help Group (SHG) and micro-enterprise financial consultant for rural and semi-urban Indian women.
+You have expert, deep knowledge in:
+- Government schemes: NRLM (DAY-NRLM), Lakhpati Didi Yojana, PM SVANidhi (street vendor & small artisan credit), Pradhan Mantri Mudra Yojana (Shishu, Kishore, Tarun), Stand-Up India.
+- SHG Bank Linkage, revolving fund (RF), Community Investment Fund (CIF), village organizations (VO), and cluster level federations (CLF).
+- Micro-enterprise financial literacy: calculating cost of goods sold, tailoring pricing, food safety (FSSAI basic registration), bookkeeping registers, and fair profit margins.
+Provide encouraging, well-structured, actionable advice with clear steps, eligibility criteria, and practical examples for women micro-entrepreneurs.`;
+    } else if (role === 'fast') {
+      systemInstruction = `You are Setu Fast Helper, a snappy and direct micro-assistant for the SkillSetu community platform.
+Keep your answers brief, polite, practical, and right to the point. Answer questions about prices, nearby services, how to contact sellers, or basic platform guidance in 2-4 sentences max.`;
+    } else {
+      systemInstruction = `You are Setu Saheli, the friendly AI community guide for SkillSetu—a platform connecting rural and semi-urban women micro-entrepreneurs (tailors, home cooks, tutors, mehendi artists, artisans) with nearby neighborhood buyers.
+You speak with warmth, respect, empathy, and regional awareness (understanding terms from Hindi, Kannada, Tamil, Telugu, Hinglish, etc.).
+Help buyers find verified local services, calculate fair rates, understand SHG verification, and help sellers improve their listings.
+When asked about local places, materials, or locations, provide helpful geographic guidance.`;
+    }
+
+    // Format conversation history for Gemini contents
+    const contents = messages.map((m: { role: 'user' | 'model'; content: string }) => ({
+      role: m.role === 'model' ? 'model' : 'user',
+      parts: [{ text: m.content }],
+    }));
+
+    // Configure tools: Maps Grounding vs Search Grounding
+    // Note per gemini-api skill: googleMaps cannot be combined with googleSearch.
+    // When using googleMaps: DO NOT set responseMimeType or responseSchema.
+    const tools: any[] = [];
+    let toolConfig: any = undefined;
+
+    if (useMaps) {
+      // Use gemini-3.5-flash with googleMaps tool as requested
+      selectedModel = 'gemini-3.5-flash';
+      tools.push({ googleMaps: {} });
+      if (userLocation && typeof userLocation.latitude === 'number' && typeof userLocation.longitude === 'number') {
+        toolConfig = {
+          retrievalConfig: {
+            latLng: {
+              latitude: userLocation.latitude,
+              longitude: userLocation.longitude,
+            },
+          },
+        };
+      }
+    } else if (useSearch) {
+      // Use gemini-3.5-flash with googleSearch tool as requested
+      selectedModel = 'gemini-3.5-flash';
+      tools.push({ googleSearch: {} });
+    }
+
+    const config: any = {
+      systemInstruction,
+      temperature: 0.4,
+    };
+
+    if (tools.length > 0) {
+      config.tools = tools;
+    }
+    if (toolConfig) {
+      config.toolConfig = toolConfig;
+    }
+
+    // Execute with primary model, with graceful fallback to gemini-3.5-flash without tools if quota or grounding tools encounter limits
+    let response: any;
+    let actualModelUsed = selectedModel;
+    try {
+      response = await ai.models.generateContent({
+        model: selectedModel,
+        contents,
+        config,
+      });
+    } catch (primaryErr: any) {
+      console.warn(`Model ${selectedModel} or grounding tool notice:`, primaryErr?.message);
+      try {
+        actualModelUsed = 'gemini-3.5-flash';
+        const fallbackConfig: any = {
+          systemInstruction,
+          temperature: 0.4,
+        };
+        response = await ai.models.generateContent({
+          model: 'gemini-3.5-flash',
+          contents,
+          config: fallbackConfig,
+        });
+      } catch (_fallbackErr: any) {
+        throw primaryErr;
+      }
+    }
+
+    const responseText = response?.text || '';
+
+    // Extract grounding URLs and details as required by gemini-api skill guidelines
+    const groundingChunks = response.candidates?.[0]?.groundingMetadata?.groundingChunks || [];
+    
+    // Search grounding sources
+    const searchSources: { title: string; uri: string }[] = [];
+    // Maps grounding places: MUST extract URLs from groundingChunks and list them as links
+    const mapPlaces: { title: string; uri: string; address?: string; snippet?: string }[] = [];
+
+    for (const chunk of groundingChunks) {
+      if (chunk.web && chunk.web.uri) {
+        searchSources.push({
+          title: chunk.web.title || new URL(chunk.web.uri).hostname,
+          uri: chunk.web.uri,
+        });
+      }
+      if (chunk.maps) {
+        const placeUri = chunk.maps.uri || (chunk.maps.placeAnswerSources?.reviewSnippets?.[0]?.sourceUri) || '';
+        mapPlaces.push({
+          title: chunk.maps.title || 'Nearby Location',
+          uri: placeUri,
+          address: chunk.maps.address || '',
+          snippet: chunk.maps.placeAnswerSources?.reviewSnippets?.[0]?.snippet || '',
+        });
+      }
+    }
+
+    return res.json({
+      success: true,
+      text: responseText,
+      modelUsed: actualModelUsed,
+      sources: searchSources,
+      mapPlaces,
+    });
+  } catch (error: any) {
+    console.error('Error in /api/chat:', error);
+    return res.status(500).json({
+      success: false,
+      error: error?.message || 'Chat generation failed',
+    });
   }
 });
 
@@ -403,12 +654,132 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), 'dist');
     app.use(express.static(distPath));
-    app.get('*', (req, res) => {
+    app.get('*', (_req, res) => {
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }
 
-  app.listen(PORT, '0.0.0.0', () => {
+  // Create HTTP server to allow WebSocket integration for Gemini Live API
+  const server = http.createServer(app);
+
+  // WebSocket Server for gemini-3.8-live real-time voice conversations
+  const wss = new WebSocketServer({ noServer: true });
+
+  server.on('upgrade', (request, socket, head) => {
+    try {
+      const url = request.url ? new URL(request.url, `http://${request.headers.host || 'localhost'}`) : null;
+      if (url && url.pathname === '/live') {
+        wss.handleUpgrade(request, socket, head, (ws) => {
+          wss.emit('connection', ws, request);
+        });
+      } else {
+        // Let Vite or other endpoints handle it if not /live
+      }
+    } catch (e) {
+      console.error('Upgrade routing error:', e);
+      socket.destroy();
+    }
+  });
+
+  wss.on('connection', async (clientWs: WebSocket) => {
+    console.log('Client connected to /live WebSocket');
+    const ai = getAIClient();
+    if (!ai) {
+      clientWs.send(JSON.stringify({ type: 'error', message: 'Gemini API key is not configured' }));
+      clientWs.close();
+      return;
+    }
+
+    try {
+      // Connect to Gemini 3.8 Live API
+      const session = await ai.live.connect({
+        model: 'gemini-3.8-live',
+        config: {
+          responseModalities: [Modality.AUDIO],
+          speechConfig: {
+            voiceConfig: {
+              prebuiltVoiceConfig: { voiceName: 'Zephyr' },
+            },
+          },
+          systemInstruction: 'You are Setu Saheli, an encouraging, natural-spoken Indian voice assistant for SkillSetu. You speak warmly and concisely to help women micro-entrepreneurs and local buyers discuss services like tailoring, cooking, tutoring, mehendi, pricing, and orders in a friendly conversational style.',
+        },
+        callbacks: {
+          onmessage: (message: any) => {
+            try {
+              const audio = message.serverContent?.modelTurn?.parts?.[0]?.inlineData?.data;
+              if (audio && clientWs.readyState === WebSocket.OPEN) {
+                clientWs.send(JSON.stringify({ type: 'audio', audio }));
+              }
+              if (message.serverContent?.interrupted && clientWs.readyState === WebSocket.OPEN) {
+                clientWs.send(JSON.stringify({ type: 'interrupted' }));
+              }
+              if (message.serverContent?.turnComplete && clientWs.readyState === WebSocket.OPEN) {
+                clientWs.send(JSON.stringify({ type: 'turnComplete' }));
+              }
+            } catch (err) {
+              console.error('Error forwarding Live message to client:', err);
+            }
+          },
+          onclose: () => {
+            if (clientWs.readyState === WebSocket.OPEN) {
+              clientWs.send(JSON.stringify({ type: 'closed' }));
+            }
+          },
+          onerror: (err: any) => {
+            console.error('Gemini Live API error:', err);
+            if (clientWs.readyState === WebSocket.OPEN) {
+              clientWs.send(JSON.stringify({ type: 'error', message: err?.message || 'Live session encountered an error' }));
+            }
+          },
+        },
+      });
+
+      clientWs.send(JSON.stringify({ type: 'ready', message: 'Live voice connection established' }));
+
+      clientWs.on('message', (data) => {
+        try {
+          const parsed = JSON.parse(data.toString());
+          if (parsed.audio) {
+            // Send 16kHz PCM audio chunk to Gemini Live session
+            session.sendRealtimeInput({
+              audio: { data: parsed.audio, mimeType: 'audio/pcm;rate=16000' },
+            });
+          } else if (parsed.text) {
+            // Support sending text prompts into the Live session (useful when no hardware mic is connected)
+            session.sendClientContent({
+              turns: [
+                {
+                  role: 'user',
+                  parts: [{ text: parsed.text }],
+                },
+              ],
+              turnComplete: true,
+            });
+          }
+        } catch (e) {
+          console.error('Error parsing client live packet:', e);
+        }
+      });
+
+      clientWs.on('close', () => {
+        console.log('Client disconnected from /live WebSocket');
+        try {
+          session.close();
+        } catch (_) {}
+      });
+    } catch (sessionErr: any) {
+      console.error('Failed to initialize Gemini Live session:', sessionErr);
+      if (clientWs.readyState === WebSocket.OPEN) {
+        clientWs.send(JSON.stringify({
+          type: 'error',
+          message: sessionErr?.message || 'Failed to start real-time voice session'
+        }));
+        clientWs.close();
+      }
+    }
+  });
+
+  server.listen(PORT, '0.0.0.0', () => {
     console.log(`SkillSetu server running at http://0.0.0.0:${PORT}`);
   });
 }

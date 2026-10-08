@@ -6,6 +6,7 @@ import {
   ExtractedListingData,
   fetchExtractionPrompt 
 } from '../utils/translationService';
+import { MicAudioRecorder, transcribeAudioWithGemini } from '../utils/audioUtils';
 import { 
   Mic, 
   MicOff, 
@@ -87,6 +88,11 @@ export const CasualSpeechAssistant: React.FC<CasualSpeechAssistantProps> = ({
   const [interimText, setInterimText] = useState('');
   const [speechError, setSpeechError] = useState<string | null>(null);
 
+  // Gemini 3.5 Transcribe state
+  const [isRecordingGeminiAudio, setIsRecordingGeminiAudio] = useState(false);
+  const [isTranscribingGeminiAudio, setIsTranscribingGeminiAudio] = useState(false);
+  const geminiRecorderRef = useRef<MicAudioRecorder | null>(null);
+
   const [isExtracting, setIsExtracting] = useState(false);
   const [lastExtracted, setLastExtracted] = useState<ExtractedListingData | null>(null);
   const [detectedLangName, setDetectedLangName] = useState<string | null>(null);
@@ -162,13 +168,18 @@ export const CasualSpeechAssistant: React.FC<CasualSpeechAssistantProps> = ({
   }, []);
 
   const startListening = () => {
-    const SpeechRecognition =
-      (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    // 2. Browser support check: SpeechRecognition or webkitSpeechRecognition
+    const SpeechRecognitionClass =
+      (window as any).SpeechRecognition ||
+      (window as any).webkitSpeechRecognition ||
+      (window as any).mozSpeechRecognition ||
+      (window as any).msSpeechRecognition;
 
-    if (!SpeechRecognition) {
-      setSpeechError(
-        'Speech recognition is not supported in this browser. You can click an example or type an informal sentence below.'
-      );
+    if (!SpeechRecognitionClass) {
+      const unsupportedMsg = 'Speech Recognition is not supported in this browser. Please use Chrome, Edge, Safari, or another browser with SpeechRecognition support, or type in the box below.';
+      console.warn('[SpeechRecognition Support]:', unsupportedMsg);
+      setSpeechError(unsupportedMsg);
+      setIsListening(false);
       return;
     }
 
@@ -181,20 +192,31 @@ export const CasualSpeechAssistant: React.FC<CasualSpeechAssistantProps> = ({
       isUserListeningRef.current = true;
       endReasonRef.current = 'Active listening session';
 
-      const recognition = new SpeechRecognition();
-      // Requirement 1: continuous = true
+      // 1. Create SpeechRecognition instance
+      const recognition = new SpeechRecognitionClass();
+
+      // 4. Configure continuous and interim results
       recognition.continuous = true;
-      // Requirement 2: interimResults = true
       recognition.interimResults = true;
       recognition.lang = langConfig.speechCode;
       recognition.maxAlternatives = 1;
 
+      // 5. onstart: Show listening state
       recognition.onstart = () => {
         setIsListening(true);
         setSpeechError(null);
         console.log(
           `[SpeechRecognition Started]: Listening session began at ${new Date().toLocaleTimeString()} (language: ${langConfig.nativeName} [${langConfig.speechCode}])`
         );
+        resetSilenceTimer();
+      };
+
+      recognition.onaudiostart = () => {
+        console.log('[SpeechRecognition]: Audio capture started');
+      };
+
+      recognition.onspeechstart = () => {
+        console.log('[SpeechRecognition]: User speech detected');
         resetSilenceTimer();
       };
 
@@ -224,69 +246,66 @@ export const CasualSpeechAssistant: React.FC<CasualSpeechAssistantProps> = ({
         }
       };
 
-      // Requirement 3: onerror handler that logs specific error type
+      // 3. onerror: Specific error handler logging "not-allowed", "no-speech", "audio-capture", etc.
       recognition.onerror = (event: any) => {
         const errorType = event.error || 'unknown';
-        console.warn(
-          `[SpeechRecognition Status]: Specific error type="${errorType}", Message="${event.message || 'No additional details'}"`
+        console.error(
+          `[SpeechRecognition Error]: error="${errorType}", message="${event.message || 'No additional details'}"`
         );
 
-        // 'no-speech' happens when the browser detects a pause. Do NOT close the session immediately!
+        // 'no-speech' is a normal pause event from the engine when silence is detected
         if (errorType === 'no-speech') {
-          console.log(
-            '[SpeechRecognition]: "no-speech" event detected by browser engine. Maintaining active listening state within 8-10s silence window...'
+          console.warn(
+            '[SpeechRecognition]: "no-speech" event received. Maintaining active listening state within silence window...'
           );
-          // Keep listening active; do not stop or display error unless silence timer expires
           return;
         }
 
-        // Prevent any automatic reconnect loops on hardware/permission errors
+        // Stop continuous loops on real failures
         isUserListeningRef.current = false;
         clearSilenceTimer();
 
-        if (errorType === 'audio-capture') {
-          endReasonRef.current = 'Audio capture failure (no audio input device detected)';
-          setSpeechError(
-            'Microphone not detected or audio input is unavailable on this device. You can test voice extraction using any sample voice below or type directly.'
-          );
-          stopListening(false);
-        } else if (errorType === 'not-allowed' || errorType === 'service-not-allowed') {
+        if (errorType === 'not-allowed' || errorType === 'service-not-allowed') {
           endReasonRef.current = `Permission denied (${errorType})`;
           setSpeechError(
-            'Microphone permission was denied. Please allow microphone access in your browser or select an example below.'
+            'Microphone permission was denied. Please allow microphone access in your browser address bar and try again.'
+          );
+          stopListening(false);
+        } else if (errorType === 'audio-capture') {
+          endReasonRef.current = 'Audio capture failure (no mic)';
+          setSpeechError(
+            'No microphone was detected on this device. Please connect a microphone or use an example phrase below.'
           );
           stopListening(false);
         } else if (errorType === 'network') {
           endReasonRef.current = 'Network error (network)';
-          setSpeechError("Didn't catch that, please try again (network connection interrupted).");
+          setSpeechError('Network error occurred during speech recognition. Please check your connection and try again.');
           stopListening(false);
         } else if (errorType === 'aborted') {
           endReasonRef.current = 'Session aborted (aborted)';
           stopListening(false);
         } else {
           endReasonRef.current = `Error: ${errorType}`;
-          setSpeechError("Didn't catch that, please try again");
+          setSpeechError(`Speech recognition error (${errorType}). Please try again.`);
           stopListening(false);
         }
       };
 
-      // Requirement 4: onend handler that logs when and why the session ended
+      // 5. onend: Clean up and revert listening state
       recognition.onend = () => {
         console.log(
           `[SpeechRecognition Ended]: Stopped at ${new Date().toLocaleTimeString()}. Reason: ${endReasonRef.current || 'Session ended'}`
         );
 
-        // If the user did NOT explicitly tap stop, and silence timer has not expired, seamlessly continue
+        // If the user did NOT explicitly tap stop and silence timer hasn't triggered, restart continuous stream
         if (isUserListeningRef.current) {
-          console.log('[SpeechRecognition Session]: Seamlessly continuing recognition stream...');
+          console.log('[SpeechRecognition]: Restarting continuous recognition stream...');
           try {
             recognition.start();
-          } catch (restartErr) {
-            console.warn('[SpeechRecognition Session]: Reconnect attempt failed:', restartErr);
+          } catch (restartErr: any) {
+            console.warn('[SpeechRecognition]: Stream restart attempt notice:', restartErr?.message || restartErr);
             setIsListening(false);
-            if (!transcriptRef.current.trim()) {
-              setSpeechError("Didn't catch that, please try again");
-            }
+            isUserListeningRef.current = false;
           }
         } else {
           setIsListening(false);
@@ -295,11 +314,19 @@ export const CasualSpeechAssistant: React.FC<CasualSpeechAssistantProps> = ({
       };
 
       recognitionRef.current = recognition;
+
+      // 1. Call recognition.start() to initiate mic request and listening
       recognition.start();
     } catch (err: any) {
-      console.warn('[SpeechRecognition Init Warning]:', err?.message || err);
-      setSpeechError("Microphone input unavailable. You can click 'Test Sample Voice' below or type naturally.");
+      console.error('[SpeechRecognition Start Failure]:', err?.message || err);
       setIsListening(false);
+      isUserListeningRef.current = false;
+      const errorMsg = err?.message?.toLowerCase() || '';
+      if (errorMsg.includes('not supported') || errorMsg.includes('undefined')) {
+        setSpeechError('Speech Recognition is not supported by your browser.');
+      } else {
+        setSpeechError(`Could not start speech recognition: ${err?.message || 'Check microphone permissions'}.`);
+      }
     }
   };
 
@@ -330,6 +357,48 @@ export const CasualSpeechAssistant: React.FC<CasualSpeechAssistantProps> = ({
       setSpeechError(err?.message || 'Gemini extraction failed. Please try again.');
     } finally {
       setIsExtracting(false);
+    }
+  };
+
+  // Gemini 3.5 Transcribe audio recording
+  const handleToggleGeminiAudioRecord = async () => {
+    if (isRecordingGeminiAudio) {
+      setIsRecordingGeminiAudio(false);
+      setIsTranscribingGeminiAudio(true);
+      setSpeechError(null);
+      try {
+        if (!geminiRecorderRef.current) return;
+        const { base64, mimeType } = await geminiRecorderRef.current.stop();
+        const transcription = await transcribeAudioWithGemini(
+          base64,
+          mimeType,
+          `Transcribe this spoken seller listing. The speaker might be speaking informal Hindi, Kannada, Tamil, Telugu, English or mixed vernacular describing their name, skill, price, and location.`
+        );
+        if (transcription.trim()) {
+          setTranscript(transcription.trim());
+          handleExtract(transcription.trim());
+        } else {
+          setSpeechError("Didn't catch that, please try speaking again.");
+        }
+      } catch (err: any) {
+        console.error('Gemini transcribe error:', err);
+        setSpeechError(`Gemini transcription notice: ${err?.message || 'Failed to transcribe audio'}`);
+      } finally {
+        setIsTranscribingGeminiAudio(false);
+        geminiRecorderRef.current = null;
+      }
+    } else {
+      try {
+        stopListening(false);
+        const rec = new MicAudioRecorder();
+        await rec.start();
+        geminiRecorderRef.current = rec;
+        setIsRecordingGeminiAudio(true);
+        setSpeechError(null);
+      } catch (err: any) {
+        console.error('Could not access mic:', err);
+        setSpeechError('Microphone permission denied or device not found.');
+      }
     }
   };
 
@@ -407,15 +476,39 @@ export const CasualSpeechAssistant: React.FC<CasualSpeechAssistantProps> = ({
                 <span>Listening... (Tap to Finish)</span>
               </button>
             ) : (
-              <button
-                type="button"
-                id="start-casual-speech-btn"
-                onClick={startListening}
-                className="w-full sm:w-auto px-5 py-3 rounded-xl bg-[#1E4D38] hover:bg-[#143526] text-white font-bold text-sm flex items-center justify-center gap-2.5 shadow-sm transition-all hover:shadow cursor-pointer"
-              >
-                <Mic className="w-4 h-4 text-emerald-300" />
-                <span>Tap to Speak Naturally</span>
-              </button>
+              <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                <button
+                  type="button"
+                  id="start-casual-speech-btn"
+                  onClick={startListening}
+                  className="w-full sm:w-auto px-5 py-3 rounded-xl bg-[#1E4D38] hover:bg-[#143526] text-white font-bold text-sm flex items-center justify-center gap-2.5 shadow-sm transition-all hover:shadow cursor-pointer"
+                >
+                  <Mic className="w-4 h-4 text-emerald-300" />
+                  <span>Tap to Speak Naturally</span>
+                </button>
+
+                <button
+                  type="button"
+                  id="gemini-transcribe-audio-btn"
+                  onClick={handleToggleGeminiAudioRecord}
+                  disabled={isListening || isExtracting || isTranscribingGeminiAudio}
+                  className={`w-full sm:w-auto px-4 py-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 border transition-all cursor-pointer ${
+                    isRecordingGeminiAudio
+                      ? 'bg-red-600 text-white border-red-700 animate-pulse'
+                      : 'bg-white hover:bg-stone-100 text-[#1E4D38] border-[#1E4D38]/30 shadow-2xs'
+                  }`}
+                  title="Record voice with high-fidelity gemini-3.5-transcribe model"
+                >
+                  <Mic className={`w-4 h-4 ${isRecordingGeminiAudio ? 'text-white' : 'text-[#C2542D]'}`} />
+                  <span>
+                    {isRecordingGeminiAudio
+                      ? 'Recording audio... (Tap to Finish)'
+                      : isTranscribingGeminiAudio
+                      ? 'Transcribing (gemini-3.5-transcribe)...'
+                      : 'Microphone Transcribe (gemini-3.5-transcribe)'}
+                  </span>
+                </button>
+              </div>
             )}
 
             {/* Language hint */}

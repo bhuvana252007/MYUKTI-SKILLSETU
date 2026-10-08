@@ -44,5 +44,29 @@ export interface SellerListing {
   }>>;
 }
 
-export type PageView = 'language-select' | 'home' | 'seller-listing' | 'buyer-search' | 'seller-profile' | 'my-listings';
+export type PageView = 'language-select' | 'home' | 'seller-listing' | 'buyer-search' | 'seller-profile' | 'my-listings' | 'assistant';
+
+export type ChatRole = 'general' | 'advisor' | 'fast';
+
+export interface GroundingSource {
+  title: string;
+  uri: string;
+}
+
+export interface MapPlace {
+  title: string;
+  uri: string;
+  address?: string;
+  snippet?: string;
+}
+
+export interface ChatMessage {
+  id: string;
+  role: 'user' | 'model';
+  content: string;
+  timestamp: number;
+  modelUsed?: string;
+  sources?: GroundingSource[];
+  mapPlaces?: MapPlace[];
+}
 

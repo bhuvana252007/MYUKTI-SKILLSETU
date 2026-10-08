@@ -1,4 +1,10 @@
 import { SellerListing } from '../types';
+import sunitaPhoto from '../assets/images/sunita_devi_tailoring_1790172574404.jpg';
+import parvatiPhoto from '../assets/images/parvati_bai_cooking_1790172589819.jpg';
+import shabanaPhoto from '../assets/images/shabana_khatun_mehendi_1790172606382.jpg';
+import meenaPhoto from '../assets/images/meena_sharma_classroom_1790173638138.jpg';
+import kamalaPhoto from '../assets/images/kamala_ben_tailor_1790173670403.jpg';
+import rekhaPhoto from '../assets/images/rekha_verma_kitchen_1790173655636.jpg';
 
 export const INITIAL_LISTINGS: SellerListing[] = [
   {
@@ -8,7 +14,7 @@ export const INITIAL_LISTINGS: SellerListing[] = [
     price: '₹200/blouse',
     location: 'Rampur Sector 4, Near Shiva Temple',
     description: 'Specialist in custom designer blouses, fancy necklines, kurti stitching, and salwar suits. Over 8 years experience. Fast delivery and perfect fitting guaranteed.',
-    photo: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=700&q=80',
+    photo: sunitaPhoto,
     isShgVerified: true,
     shgGroupName: 'Maa Durga Mahila Bachat Gat',
     phone: '+91 98765 43210',
@@ -57,7 +63,7 @@ export const INITIAL_LISTINGS: SellerListing[] = [
     price: '₹120/tiffin',
     location: 'Anand Nagar, Ward 8',
     description: 'Fresh homemade pure vegetarian daily tiffin service. Includes 4 hot rotis, dal, seasonal vegetable sabzi, rice, and salad. Clean, hygienic cooking with low oil and homely spices.',
-    photo: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=700&q=80',
+    photo: parvatiPhoto,
     isShgVerified: true,
     shgGroupName: 'Annapurna Mahila SHG',
     phone: '+91 98234 56789',
@@ -106,7 +112,7 @@ export const INITIAL_LISTINGS: SellerListing[] = [
     price: '₹350/both hands',
     location: 'Purani Basti, Near Jama Masjid',
     description: 'Bridal, Karwa Chauth, Eid, and festival mehendi artist. Expert in Arabic, Rajasthani, and modern floral designs. 100% natural herbal chemical-free cone with dark maroon stain.',
-    photo: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=700&q=80',
+    photo: shabanaPhoto,
     isShgVerified: true,
     shgGroupName: 'Hunar Vikas SHG',
     phone: '+91 97123 45678',
@@ -155,7 +161,7 @@ export const INITIAL_LISTINGS: SellerListing[] = [
     price: '₹500/month per child',
     location: 'Vikas Nagar, Block B',
     description: 'Experienced tutor for children from Nursery to Class 7. Focus on foundational Maths, English reading, Hindi grammar, and daily school homework. Small friendly home batches.',
-    photo: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=700&q=80',
+    photo: meenaPhoto,
     isShgVerified: true,
     shgGroupName: 'Saraswati Gyan Mahila Mandal',
     phone: '+91 96543 21098',
@@ -204,7 +210,7 @@ export const INITIAL_LISTINGS: SellerListing[] = [
     price: '₹150/kurti stitching',
     location: 'Gandhi Chowk, Main Bazaar',
     description: 'Expert dressmaker with 10 years experience. Saree fall pico, zipper replacement, pant tapering, and children clothing. Fast 24-hour express stitching available on request.',
-    photo: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=700&q=80',
+    photo: kamalaPhoto,
     isShgVerified: true,
     shgGroupName: 'Ekta Mahila Bachat Gat',
     phone: '+91 95432 10987',
@@ -253,7 +259,7 @@ export const INITIAL_LISTINGS: SellerListing[] = [
     price: '₹250/kg festive snacks',
     location: 'Shanti Nagar, Gali No. 3',
     description: 'Specialist in authentic festive sweets and savory snacks: handmade Besan Ladoo, crispy Mathri, Gujiya, Namakpara, and fresh evening samosas for kitty parties and puja orders.',
-    photo: 'https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?auto=format&fit=crop&w=700&q=80',
+    photo: rekhaPhoto,
     isShgVerified: true,
     shgGroupName: 'Gramin Mahila Udyam SHG',
     phone: '+91 94321 09876',

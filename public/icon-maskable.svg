@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <linearGradient id="mBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FAF5EB" />
+      <stop offset="100%" stop-color="#F2E6D5" />
+    </linearGradient>
+    <linearGradient id="mTerracotta" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D9663E" />
+      <stop offset="100%" stop-color="#A13D19" />
+    </linearGradient>
+    <linearGradient id="mGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F1B843" />
+      <stop offset="100%" stop-color="#B57E12" />
+    </linearGradient>
+    <linearGradient id="mForest" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2D7254" />
+      <stop offset="100%" stop-color="#143526" />
+    </linearGradient>
+  </defs>
+
+  <!-- Full-bleed background for maskable squircle/circle cropping -->
+  <rect width="512" height="512" fill="url(#mBgGrad)" />
+
+  <!-- Inner Crest scaled down to 78% so it stays completely inside safe zone -->
+  <g transform="translate(56, 56) scale(0.78)">
+    <circle cx="256" cy="256" r="180" fill="url(#mTerracotta)" />
+    <circle cx="256" cy="256" r="172" fill="none" stroke="#F6E4BA" stroke-width="4" opacity="0.6" />
+
+    <!-- Bridge "Setu" Arch -->
+    <path d="M 140 330 C 180 250, 332 250, 372 330 C 342 330, 312 285, 256 285 C 200 285, 170 330, 140 330 Z" fill="#FAF5EB" opacity="0.95" />
+
+    <!-- Golden Spire & Sun Ray Accent -->
+    <circle cx="256" cy="180" r="42" fill="url(#mGold)" />
+    <circle cx="256" cy="180" r="34" fill="#FAF5EB" />
+
+    <!-- Botanical Sprout / Leaf Motif -->
+    <path d="M 256 142 C 275 160, 275 195, 256 210 C 237 195, 237 160, 256 142 Z" fill="url(#mForest)" />
+    <path d="M 256 175 C 285 170, 305 185, 305 205 C 285 208, 268 195, 256 175 Z" fill="url(#mForest)" opacity="0.9" />
+    <path d="M 256 175 C 227 170, 207 185, 207 205 C 227 208, 244 195, 256 175 Z" fill="url(#mForest)" opacity="0.9" />
+
+    <!-- Bridge Pillars -->
+    <rect x="248" y="285" width="16" height="55" rx="8" fill="#FAF5EB" opacity="0.95" />
+    <rect x="200" y="295" width="14" height="42" rx="7" fill="#FAF5EB" opacity="0.85" />
+    <rect x="298" y="295" width="14" height="42" rx="7" fill="#FAF5EB" opacity="0.85" />
+  </g>
+</svg>

@@ -1,13 +1,15 @@
 import React from 'react';
 import { PageView, SupportedLanguage } from '../types';
 import { TRANSLATIONS, LANGUAGE_OPTIONS } from '../translations';
-import { Search, PlusCircle, Home, HeartHandshake, Globe, BookmarkCheck } from 'lucide-react';
+import { Search, PlusCircle, Home, HeartHandshake, Globe, BookmarkCheck, Sparkles, Database } from 'lucide-react';
+import { PWAInstallButton } from './PWAInstallButton';
 
 interface NavbarProps {
   currentPage: PageView;
   language: SupportedLanguage;
   onNavigate: (page: PageView) => void;
   onOpenLanguageSelect: () => void;
+  onOpenSupabaseModal?: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -15,6 +17,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   language,
   onNavigate,
   onOpenLanguageSelect,
+  onOpenSupabaseModal,
 }) => {
   const t = TRANSLATIONS[language];
   const currentLangConfig = LANGUAGE_OPTIONS.find((l) => l.id === language) || LANGUAGE_OPTIONS[0];
@@ -49,6 +52,26 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           {/* Navigation Actions */}
           <nav className="flex items-center gap-1 sm:gap-2">
+            {/* Supabase Database Status Button */}
+            {onOpenSupabaseModal && (
+              <button
+                id="nav-supabase-status-btn"
+                onClick={onOpenSupabaseModal}
+                className="hidden lg:flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl text-xs font-semibold bg-emerald-50 text-emerald-800 border border-emerald-300 hover:bg-emerald-100 transition-colors shadow-2xs cursor-pointer"
+                title="Connected to Supabase PostgreSQL Database (hoeusmefmobavdxphyyl)"
+              >
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
+                </span>
+                <Database className="w-3.5 h-3.5 text-emerald-700" />
+                <span>Supabase DB</span>
+              </button>
+            )}
+
+            {/* PWA Install Button */}
+            <PWAInstallButton variant="navbar" />
+
             {/* Language Switcher Button */}
             <button
               id="nav-language-btn"
@@ -86,6 +109,21 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <Search className="w-4 h-4" />
               <span className="hidden xs:inline">{t.nav.findServices}</span>
+            </button>
+
+            {/* Setu AI Assistant */}
+            <button
+              id="nav-assistant-btn"
+              onClick={() => onNavigate('assistant')}
+              className={`px-2 py-1.5 sm:px-3 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all flex items-center gap-1.5 border cursor-pointer ${
+                currentPage === 'assistant'
+                  ? 'bg-[#1E4D38] text-white border-[#1E4D38] shadow-xs'
+                  : 'bg-gradient-to-r from-[#FFFDF9] to-[#FAF3E8] text-[#1E4D38] border-[#DDA74F]/50 hover:bg-[#F5EAD9]'
+              }`}
+              title="Setu AI Multi-turn Assistant & Voice"
+            >
+              <Sparkles className="w-4 h-4 text-[#DDA74F]" />
+              <span className="hidden md:inline">AI Assistant</span>
             </button>
 
             {/* My Listings */}

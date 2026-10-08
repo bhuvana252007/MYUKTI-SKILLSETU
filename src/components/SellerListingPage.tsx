@@ -1,9 +1,16 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { PageView, SkillCategory, SellerListing, SupportedLanguage } from '../types';
 import { TRANSLATIONS, LANGUAGE_OPTIONS } from '../translations';
 import { TypeSpeakControl } from './TypeSpeakControl';
 import { CasualSpeechAssistant } from './CasualSpeechAssistant';
 import { prepareListingWithEnglishBase, ExtractedListingData } from '../utils/translationService';
+import { saveListingDraft, getListingDraft, clearListingDraft } from '../utils/storage';
+import sunitaPhoto from '../assets/images/sunita_devi_tailoring_1790172574404.jpg';
+import parvatiPhoto from '../assets/images/parvati_bai_cooking_1790172589819.jpg';
+import shabanaPhoto from '../assets/images/shabana_khatun_mehendi_1790172606382.jpg';
+import meenaPhoto from '../assets/images/meena_sharma_classroom_1790173638138.jpg';
+import kamalaPhoto from '../assets/images/kamala_ben_tailor_1790173670403.jpg';
+import rekhaPhoto from '../assets/images/rekha_verma_kitchen_1790173655636.jpg';
 import { 
   ArrowLeft, 
   Upload, 
@@ -14,7 +21,8 @@ import {
   Loader2,
   Languages,
   Info,
-  CheckCheck
+  CheckCheck,
+  Database
 } from 'lucide-react';
 
 interface SellerListingPageProps {
@@ -23,6 +31,7 @@ interface SellerListingPageProps {
   onListingCreated: (listing: SellerListing) => void;
   editingListing?: SellerListing | null;
   onListingUpdated?: (listing: SellerListing) => void;
+  onOpenSupabaseModal?: () => void;
 }
 
 // Sample photo presets if the user doesn't have a photo on device
@@ -30,27 +39,27 @@ const SAMPLE_PHOTOS: { category: SkillCategory; label: string; url: string }[] =
   {
     category: 'Tailoring',
     label: 'Tailoring Work',
-    url: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=700&q=80',
+    url: sunitaPhoto,
   },
   {
     category: 'Cooking',
     label: 'Home Cooking',
-    url: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=700&q=80',
+    url: parvatiPhoto,
   },
   {
     category: 'Tutoring',
-    label: 'Teaching & Books',
-    url: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=700&q=80',
+    label: 'Classroom & Tutoring',
+    url: meenaPhoto,
   },
   {
     category: 'Mehendi',
     label: 'Mehendi Art',
-    url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=700&q=80',
+    url: shabanaPhoto,
   },
   {
     category: 'Other',
-    label: 'Handicraft & Art',
-    url: 'https://images.unsplash.com/photo-1567532939604-b6b5b0db2604?auto=format&fit=crop&w=700&q=80',
+    label: 'Stitching & Crafts',
+    url: kamalaPhoto,
   },
 ];
 
@@ -60,6 +69,7 @@ export const SellerListingPage: React.FC<SellerListingPageProps> = ({
   onListingCreated,
   editingListing,
   onListingUpdated,
+  onOpenSupabaseModal,
 }) => {
   const t = TRANSLATIONS[language];
   const currentLangConfig = LANGUAGE_OPTIONS.find((l) => l.id === language) || LANGUAGE_OPTIONS[0];
@@ -75,7 +85,36 @@ export const SellerListingPage: React.FC<SellerListingPageProps> = ({
   const [shgGroupName, setShgGroupName] = useState(editingListing?.shgGroupName || '');
   const [phone, setPhone] = useState(editingListing?.phone || '');
   const [autoFilledFromSpeech, setAutoFilledFromSpeech] = useState(false);
+  const [hasRestoredDraft, setHasRestoredDraft] = useState(false);
+  const [submittedListing, setSubmittedListing] = useState<SellerListing | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
+
+  // Restore draft from localStorage if user was disconnected or reloaded
+  useEffect(() => {
+    if (!isEditMode) {
+      const draft = getListingDraft();
+      if (draft && (draft.name || draft.price || draft.location || draft.description)) {
+        if (draft.name) setName(draft.name);
+        if (draft.category) setCategory(draft.category);
+        if (draft.price) setPrice(draft.price);
+        if (draft.location) setLocation(draft.location);
+        if (draft.description) setDescription(draft.description);
+        if (draft.phone) setPhone(draft.phone);
+        if (draft.shgGroupName) setShgGroupName(draft.shgGroupName);
+        if (draft.photo) setPhoto(draft.photo);
+        setHasRestoredDraft(true);
+      }
+    }
+  }, [isEditMode]);
+
+  // Auto-save draft changes to localStorage for offline protection
+  useEffect(() => {
+    if (!isEditMode && !submittedListing) {
+      if (name || price || location || description || phone) {
+        saveListingDraft({ name, category, price, location, description, phone, shgGroupName, photo });
+      }
+    }
+  }, [name, category, price, location, description, phone, shgGroupName, photo, isEditMode, submittedListing]);
 
   const handleCasualSpeechExtracted = (data: ExtractedListingData) => {
     if (data.name) setName(data.name);
@@ -104,7 +143,6 @@ export const SellerListingPage: React.FC<SellerListingPageProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [translationStatus, setTranslationStatus] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
-  const [submittedListing, setSubmittedListing] = useState<SellerListing | null>(null);
 
   // Handle Photo File Upload
   const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -217,7 +255,7 @@ export const SellerListingPage: React.FC<SellerListingPageProps> = ({
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
       {/* Back to Home / My Listings Button */}
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <button
           id="seller-back-btn"
           onClick={() => onNavigate(isEditMode ? 'my-listings' : 'home')}
@@ -227,11 +265,26 @@ export const SellerListingPage: React.FC<SellerListingPageProps> = ({
           <span>{isEditMode ? (t.nav.myListings || 'Back to My Listings') : t.sellerListing.backToHome}</span>
         </button>
 
-        {isEditMode && (
-          <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#FBEEE8] text-[#C2542D] border border-[#F3D2C4]">
-            Editing Mode • {editingListing?.name}
-          </span>
-        )}
+        <div className="flex items-center gap-2">
+          {onOpenSupabaseModal && (
+            <button
+              type="button"
+              onClick={onOpenSupabaseModal}
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 text-xs font-semibold text-emerald-800 transition-colors cursor-pointer shadow-2xs"
+              title="Connected to Supabase PostgreSQL Database (hoeusmefmobavdxphyyl)"
+            >
+              <Database className="w-3.5 h-3.5 text-emerald-700" />
+              <span className="hidden sm:inline">Supabase DB:</span>
+              <span className="font-mono text-[11px] font-bold">hoeusmefmobavdxphyyl</span>
+            </button>
+          )}
+
+          {isEditMode && (
+            <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#FBEEE8] text-[#C2542D] border border-[#F3D2C4]">
+              Editing Mode • {editingListing?.name}
+            </span>
+          )}
+        </div>
       </div>
 
       {/* Success Modal / Banner */}
@@ -279,6 +332,32 @@ export const SellerListingPage: React.FC<SellerListingPageProps> = ({
               <Info className="w-3.5 h-3.5 shrink-0 text-[#1E4D38]" />
               <span>Buyers can now discover your service in Hindi, Kannada, Tamil, Telugu, or English!</span>
             </p>
+          </div>
+
+          {/* Supabase Auto-Save Status */}
+          <div className="my-5 p-3.5 rounded-2xl bg-emerald-50 border border-emerald-300 text-left max-w-lg mx-auto shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shrink-0">
+                <Database className="w-4 h-4" />
+              </div>
+              <div>
+                <span className="block text-xs font-bold text-emerald-900">
+                  ✓ Profile Auto-Saved to Supabase Backend
+                </span>
+                <span className="text-[11px] text-emerald-700 font-mono">
+                  Project: hoeusmefmobavdxphyyl • Table: profiles
+                </span>
+              </div>
+            </div>
+            {onOpenSupabaseModal && (
+              <button
+                type="button"
+                onClick={onOpenSupabaseModal}
+                className="self-start sm:self-auto px-2.5 py-1 rounded-lg bg-white border border-emerald-300 text-emerald-800 text-xs font-bold hover:bg-emerald-100 transition-colors shrink-0 cursor-pointer shadow-2xs"
+              >
+                View Database
+              </button>
+            )}
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -344,6 +423,37 @@ export const SellerListingPage: React.FC<SellerListingPageProps> = ({
             onExtracted={handleCasualSpeechExtracted}
             onScrollToForm={handleScrollToForm}
           />
+
+          {hasRestoredDraft && !submittedListing && (
+            <div 
+              id="draft-restored-notification"
+              className="mb-6 p-4 rounded-2xl bg-amber-50 border border-amber-300 flex items-center justify-between gap-3 text-xs sm:text-sm text-amber-900"
+            >
+              <div className="flex items-center gap-2">
+                <Check className="w-4 h-4 text-amber-700 shrink-0" />
+                <span>
+                  <strong>Restored Unsaved Draft:</strong> Your previous in-progress details were safely recovered from device storage.
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  clearListingDraft();
+                  setName('');
+                  setPrice('');
+                  setLocation('');
+                  setDescription('');
+                  setPhone('');
+                  setShgGroupName('');
+                  setPhoto('');
+                  setHasRestoredDraft(false);
+                }}
+                className="text-xs text-amber-800 underline hover:text-amber-950 font-bold shrink-0 cursor-pointer"
+              >
+                Clear Draft
+              </button>
+            </div>
+          )}
 
           {autoFilledFromSpeech && (
             <div 

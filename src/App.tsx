@@ -10,7 +10,8 @@ import {
   saveNewListing, 
   updateListing, 
   deleteListing, 
-  resetToSeedListings 
+  resetToSeedListings,
+  syncListingsWithSupabase 
 } from './utils/storage';
 import { Navbar } from './components/Navbar';
 import { HomePage } from './components/HomePage';
@@ -19,7 +20,12 @@ import { BuyerSearchPage } from './components/BuyerSearchPage';
 import { SellerProfilePage } from './components/SellerProfilePage';
 import { MyListingsPage } from './components/MyListingsPage';
 import { LanguageSelectionScreen } from './components/LanguageSelectionScreen';
+import { GeminiChatAssistant } from './components/GeminiChatAssistant';
+import { LiveVoiceModal } from './components/LiveVoiceModal';
+import { SupabaseSyncModal } from './components/SupabaseSyncModal';
+import { OfflineIndicator } from './components/OfflineIndicator';
 import { Footer } from './components/Footer';
+import { Sparkles, Radio } from 'lucide-react';
 
 const PREFERRED_LANG_KEY = 'skillsetu_preferred_lang';
 
@@ -51,11 +57,24 @@ export default function App() {
   const [selectedListing, setSelectedListing] = useState<SellerListing | null>(null);
   const [editingListing, setEditingListing] = useState<SellerListing | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<SkillCategory | 'All'>('All');
+  const [isLiveVoiceOpen, setIsLiveVoiceOpen] = useState(false);
+  const [isSupabaseModalOpen, setIsSupabaseModalOpen] = useState(false);
 
-  // Load listings on mount
+  // Load listings on mount & sync with Supabase in background
   useEffect(() => {
     const loaded = getStoredListings();
     setListings(loaded);
+
+    // Asynchronously fetch profiles from Supabase cloud database
+    syncListingsWithSupabase()
+      .then((res) => {
+        if (res.success && res.listings && res.listings.length > 0) {
+          setListings(res.listings);
+        }
+      })
+      .catch((err) => {
+        console.warn('Background Supabase sync info:', err);
+      });
   }, []);
 
   // Scroll to top on page change
@@ -157,77 +176,140 @@ export default function App() {
           setPreviousPage(currentPage);
           setCurrentPage('language-select');
         }}
+        onOpenSupabaseModal={() => setIsSupabaseModalOpen(true)}
       />
 
-      {/* Main Content View */}
-      <main className="flex-1 w-full">
-        {currentPage === 'home' && (
-          <HomePage
-            language={language}
-            onNavigate={navigateTo}
-            onSelectCategory={handleSelectCategory}
-            onSelectListing={handleSelectListing}
-            featuredListings={listings}
-          />
-        )}
+      {/* Main Content View with 3D Depth Page Transition */}
+      <main className="flex-1 w-full preserve-3d" style={{ perspective: '1200px' }}>
+        <div
+          key={currentPage + (currentPage === 'seller-profile' && selectedListing ? `-${selectedListing.id}` : '')}
+          className="page-3d-transition w-full h-full"
+        >
+          {currentPage === 'home' && (
+            <HomePage
+              language={language}
+              onNavigate={navigateTo}
+              onSelectCategory={handleSelectCategory}
+              onSelectListing={handleSelectListing}
+              featuredListings={listings}
+            />
+          )}
 
-        {currentPage === 'seller-listing' && (
-          <SellerListingPage
-            language={language}
-            onNavigate={navigateTo}
-            onListingCreated={handleListingCreated}
-            editingListing={editingListing}
-            onListingUpdated={handleListingUpdated}
-          />
-        )}
+          {currentPage === 'seller-listing' && (
+            <SellerListingPage
+              language={language}
+              onNavigate={navigateTo}
+              onListingCreated={handleListingCreated}
+              editingListing={editingListing}
+              onListingUpdated={handleListingUpdated}
+              onOpenSupabaseModal={() => setIsSupabaseModalOpen(true)}
+            />
+          )}
 
-        {currentPage === 'my-listings' && (
-          <MyListingsPage
-            listings={listings}
-            language={language}
-            onNavigate={navigateTo}
-            onEditListing={handleEditListing}
-            onDeleteListing={handleDeleteListing}
-            onSelectSeller={handleSelectListing}
-          />
-        )}
+          {currentPage === 'my-listings' && (
+            <MyListingsPage
+              listings={listings}
+              language={language}
+              onNavigate={navigateTo}
+              onEditListing={handleEditListing}
+              onDeleteListing={handleDeleteListing}
+              onSelectSeller={handleSelectListing}
+            />
+          )}
 
-        {currentPage === 'buyer-search' && (
-          <BuyerSearchPage
-            language={language}
-            listings={listings}
-            onNavigate={navigateTo}
-            onSelectListing={handleSelectListing}
-            initialCategory={selectedCategory}
-          />
-        )}
+          {currentPage === 'buyer-search' && (
+            <BuyerSearchPage
+              language={language}
+              listings={listings}
+              onNavigate={navigateTo}
+              onSelectListing={handleSelectListing}
+              initialCategory={selectedCategory}
+            />
+          )}
 
-        {currentPage === 'seller-profile' && selectedListing && (
-          <SellerProfilePage
-            seller={selectedListing}
-            language={language}
-            onNavigate={navigateTo}
-          />
-        )}
+          {currentPage === 'assistant' && (
+            <GeminiChatAssistant
+              language={language}
+              onOpenLiveVoice={() => setIsLiveVoiceOpen(true)}
+              onNavigateHome={() => navigateTo('home')}
+            />
+          )}
 
-        {currentPage === 'seller-profile' && !selectedListing && (
-          <div className="max-w-md mx-auto py-20 px-4 text-center">
-            <p className="text-base text-[#6A5D54] mb-4">No seller profile selected.</p>
-            <button
-              onClick={() => navigateTo('buyer-search')}
-              className="px-6 py-3 rounded-xl bg-[#1E4D38] text-white font-bold text-base cursor-pointer"
-            >
-              Go to Buyer Search
-            </button>
-          </div>
-        )}
+          {currentPage === 'seller-profile' && selectedListing && (
+            <SellerProfilePage
+              seller={selectedListing}
+              language={language}
+              onNavigate={navigateTo}
+            />
+          )}
+
+          {currentPage === 'seller-profile' && !selectedListing && (
+            <div className="max-w-md mx-auto py-20 px-4 text-center">
+              <p className="text-base text-[#6A5D54] mb-4">No seller profile selected.</p>
+              <button
+                onClick={() => navigateTo('buyer-search')}
+                className="px-6 py-3 rounded-xl bg-[#1E4D38] text-white font-bold text-base cursor-pointer"
+              >
+                Go to Buyer Search
+              </button>
+            </div>
+          )}
+        </div>
       </main>
+
+      {/* Floating Action Button for Instant AI & Live Voice Access */}
+      <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-2.5">
+        <button
+          onClick={() => setIsLiveVoiceOpen(true)}
+          className="px-4 py-2.5 rounded-full bg-gradient-to-r from-[#1E4D38] to-[#2E7254] text-white font-bold text-xs shadow-lg hover:shadow-xl hover:scale-105 transition-all flex items-center gap-2 border-2 border-[#DDA74F] cursor-pointer"
+          title="Start real-time voice call with gemini-3.8-live"
+        >
+          <Radio className="w-4 h-4 text-[#DDA74F] animate-pulse" />
+          <span className="hidden sm:inline">Live Voice Call</span>
+          <span className="sm:hidden">Voice</span>
+        </button>
+
+        <button
+          onClick={() => navigateTo('assistant')}
+          className={`px-4 py-3 rounded-full text-white font-bold text-sm shadow-xl hover:shadow-2xl hover:scale-105 transition-all flex items-center gap-2.5 cursor-pointer ${
+            currentPage === 'assistant'
+              ? 'bg-[#C2542D] ring-4 ring-[#C2542D]/20'
+              : 'bg-[#1E4D38] hover:bg-[#163829]'
+          }`}
+          title="Open Setu Saheli AI Assistant"
+        >
+          <Sparkles className="w-5 h-5 text-[#DDA74F]" />
+          <span>Ask Setu AI</span>
+        </button>
+      </div>
+
+      {/* Live Voice Conversation Modal (gemini-3.8-live) */}
+      <LiveVoiceModal
+        isOpen={isLiveVoiceOpen}
+        onClose={() => setIsLiveVoiceOpen(false)}
+        language={language}
+        onNavigateToAssistant={() => {
+          setIsLiveVoiceOpen(false);
+          navigateTo('assistant');
+        }}
+      />
+
+      {/* Supabase PostgreSQL Backend Modal & Schema Setup */}
+      <SupabaseSyncModal
+        isOpen={isSupabaseModalOpen}
+        onClose={() => setIsSupabaseModalOpen(false)}
+        onSyncComplete={(updated) => setListings(updated)}
+      />
+
+      {/* Rural Offline & Intermittent Network Connectivity Indicator */}
+      <OfflineIndicator />
 
       {/* Earthy Footer */}
       <Footer 
         language={language}
         onNavigate={navigateTo} 
-        onResetData={handleResetData} 
+        onResetData={handleResetData}
+        onOpenSupabaseModal={() => setIsSupabaseModalOpen(true)}
       />
     </div>
   );

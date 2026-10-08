@@ -16,8 +16,12 @@ import {
   Sparkles,
   Briefcase,
   Loader2,
-  Languages
+  Languages,
+  Mic,
+  MicOff
 } from 'lucide-react';
+import { MicAudioRecorder, transcribeAudioWithGemini } from '../utils/audioUtils';
+import { SellerCard3D } from './SellerCard3D';
 
 interface BuyerSearchPageProps {
   language: SupportedLanguage;
@@ -40,6 +44,45 @@ export const BuyerSearchPage: React.FC<BuyerSearchPageProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>(initialCategory);
   const [selectedLocation, setSelectedLocation] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState<string>('');
+
+  // Voice Search via gemini-3.5-transcribe
+  const [isRecordingVoiceSearch, setIsRecordingVoiceSearch] = useState(false);
+  const [isTranscribingSearch, setIsTranscribingSearch] = useState(false);
+  const searchRecorderRef = React.useRef<MicAudioRecorder | null>(null);
+
+  const handleToggleVoiceSearch = async () => {
+    if (isRecordingVoiceSearch) {
+      setIsRecordingVoiceSearch(false);
+      setIsTranscribingSearch(true);
+      try {
+        if (!searchRecorderRef.current) return;
+        const { base64, mimeType } = await searchRecorderRef.current.stop();
+        const text = await transcribeAudioWithGemini(
+          base64,
+          mimeType,
+          'Transcribe this short search query spoken in Hindi, Kannada, Tamil, Telugu, or English.'
+        );
+        if (text.trim()) {
+          setSearchQuery(text.trim());
+        }
+      } catch (err: any) {
+        console.error('Voice search transcription error:', err);
+      } finally {
+        setIsTranscribingSearch(false);
+        searchRecorderRef.current = null;
+      }
+    } else {
+      try {
+        const rec = new MicAudioRecorder();
+        await rec.start();
+        searchRecorderRef.current = rec;
+        setIsRecordingVoiceSearch(true);
+      } catch (err: any) {
+        console.error('Mic access failed:', err);
+        alert(err?.message || 'Please connect a microphone or allow microphone permissions.');
+      }
+    }
+  };
 
   // Translations State for Listings
   const [displayListings, setDisplayListings] = useState<SellerListing[]>(listings);
@@ -265,27 +308,71 @@ export const BuyerSearchPage: React.FC<BuyerSearchPageProps> = ({
             <label htmlFor="search-input" className="block text-xs font-bold text-[#6B5749] uppercase tracking-wider mb-1.5">
               {t.buyerSearch.searchKeywordLabel}
             </label>
-            <div className="relative">
+            <div className="relative flex items-center">
               <input
                 id="search-input"
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder={t.buyerSearch.searchPlaceholder}
-                className="w-full px-4 py-3 pr-9 rounded-xl border border-[#D8C7B5] focus:border-[#1E4D38] focus:ring-2 focus:ring-[#EEF6F2] text-sm sm:text-base text-[#3D2B1F] bg-[#FFFDF9] outline-none transition-all placeholder:text-[#9F9185]"
+                placeholder={
+                  isRecordingVoiceSearch
+                    ? 'Listening... speak now'
+                    : isTranscribingSearch
+                    ? 'Transcribing search...'
+                    : t.buyerSearch.searchPlaceholder
+                }
+                className="w-full px-4 py-3 pr-20 rounded-xl border border-[#D8C7B5] focus:border-[#1E4D38] focus:ring-2 focus:ring-[#EEF6F2] text-sm sm:text-base text-[#3D2B1F] bg-[#FFFDF9] outline-none transition-all placeholder:text-[#9F9185]"
               />
-              {searchQuery ? (
+              <div className="absolute right-2.5 flex items-center gap-1.5">
+                {searchQuery ? (
+                  <button
+                    onClick={() => setSearchQuery('')}
+                    className="text-[#8C7E74] hover:text-[#3D2B1F] cursor-pointer p-1"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                ) : (
+                  <Search className="w-4 h-4 text-[#8C7E74]" />
+                )}
+
+                {/* Voice search button via gemini-3.5-transcribe */}
                 <button
-                  onClick={() => setSearchQuery('')}
-                  className="absolute right-3 top-3.5 text-[#8C7E74] hover:text-[#3D2B1F] cursor-pointer"
+                  type="button"
+                  onClick={handleToggleVoiceSearch}
+                  disabled={isTranscribingSearch}
+                  className={`p-1.5 rounded-lg transition-all cursor-pointer ${
+                    isRecordingVoiceSearch
+                      ? 'bg-red-600 text-white animate-pulse'
+                      : 'hover:bg-stone-100 text-[#1E4D38]'
+                  }`}
+                  title="Voice search using gemini-3.5-transcribe"
                 >
-                  <X className="w-4 h-4" />
+                  {isRecordingVoiceSearch ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
                 </button>
-              ) : (
-                <Search className="absolute right-3 top-3.5 w-4 h-4 text-[#8C7E74]" />
-              )}
+              </div>
             </div>
           </div>
+        </div>
+
+        {/* Google Maps Exploration Banner */}
+        <div className="mt-4 pt-3 border-t border-[#EADBCE] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-[#FAF5EB] p-3.5 rounded-2xl">
+          <div className="flex items-center gap-2.5 text-xs text-[#3D2B1F]">
+            <div className="w-7 h-7 rounded-lg bg-blue-100 text-blue-700 flex items-center justify-center shrink-0">
+              <MapPin className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="font-bold">Need tailoring materials, packaging supplies, or training centers?</p>
+              <p className="text-[#6B5749]">Find real-world places nearby using Google Maps Grounding with Gemini 3.5 Flash.</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => onNavigate('assistant')}
+            className="px-3.5 py-1.5 rounded-xl bg-[#1E4D38] hover:bg-[#163829] text-white text-xs font-bold shrink-0 flex items-center gap-1.5 shadow-2xs transition-colors cursor-pointer"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-[#DDA74F]" />
+            <span>Search Nearby Places</span>
+          </button>
         </div>
 
         {/* Active Filter summary & clear */}
@@ -307,82 +394,20 @@ export const BuyerSearchPage: React.FC<BuyerSearchPageProps> = ({
         )}
       </div>
 
-      {/* LISTINGS GRID */}
+      {/* LISTINGS GRID WITH 3D CARD EFFECTS */}
       {filteredListings.length > 0 ? (
         <div 
           id="buyer-listings-grid" 
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           {filteredListings.map((seller) => (
-            <div
+            <SellerCard3D
               key={seller.id}
-              id={`seller-card-${seller.id}`}
-              onClick={() => onSelectListing(seller)}
-              className="group bg-[#FFFDF9] rounded-2xl overflow-hidden border border-[#EADBCE] hover:border-[#1E4D38] hover:shadow-lg transition-all duration-200 cursor-pointer flex flex-col justify-between"
-            >
-              {/* Card Top: Photo, Badge, Category */}
-              <div>
-                <div className="relative h-56 w-full bg-[#EFE4D3] overflow-hidden">
-                  <img
-                    src={seller.photo}
-                    alt={seller.name}
-                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
-                    referrerPolicy="no-referrer"
-                    onError={(e) => {
-                      (e.target as HTMLElement).style.display = 'none';
-                    }}
-                  />
-
-                  {/* SHG Verified Badge with Checkmark icon */}
-                  {seller.isShgVerified && (
-                    <div className="absolute top-3 left-3 bg-[#EEF6F2] text-[#1E4D38] border border-[#C7E4D3] px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-sm">
-                      <CheckCircle className="w-4 h-4 fill-[#1E4D38] text-white" />
-                      <span>{t.shgBadge}</span>
-                    </div>
-                  )}
-
-                  {/* Category Pill */}
-                  <div className="absolute bottom-3 right-3 bg-[#3D2B1F]/90 backdrop-blur-xs text-white px-3 py-1 rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-xs">
-                    {getCategoryIcon(seller.category)}
-                    <span>{t.categories[seller.category]?.title || seller.category}</span>
-                  </div>
-                </div>
-
-                {/* Card Content */}
-                <div className="p-5">
-                  {/* Name and Price */}
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <h2 className="text-xl sm:text-2xl font-bold font-heritage text-[#3D2B1F] group-hover:text-[#1E4D38] transition-colors leading-snug">
-                      {seller.name}
-                    </h2>
-                    <span className="text-base sm:text-lg font-extrabold text-[#C2542D] shrink-0">
-                      {seller.price}
-                    </span>
-                  </div>
-
-                  {/* Location with Icon */}
-                  <div className="flex items-center gap-1.5 text-xs sm:text-sm text-[#6B5749] mb-3 font-medium">
-                    <MapPin className="w-4 h-4 text-[#C2542D] shrink-0" />
-                    <span className="truncate">{seller.location}</span>
-                  </div>
-
-                  {/* Short Description */}
-                  <p className="text-sm text-[#5C4433] line-clamp-3 leading-relaxed mb-4">
-                    {seller.description}
-                  </p>
-                </div>
-              </div>
-
-              {/* Card Footer: View Details & Contact CTA */}
-              <div className="p-5 pt-0 mt-auto border-t border-[#EADBCE] flex items-center justify-between">
-                <span className="text-xs font-bold text-[#1E4D38] group-hover:underline">
-                  {t.buyerSearch.viewProfileBtn} &rarr;
-                </span>
-                <span className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#FAF5EB] text-[#5C4433] group-hover:bg-[#1E4D38] group-hover:text-white transition-colors border border-[#EADBCE]/60">
-                  {t.sellerProfile.contactBtn}
-                </span>
-              </div>
-            </div>
+              seller={seller}
+              language={language}
+              onSelect={onSelectListing}
+              categoryIcon={getCategoryIcon(seller.category)}
+            />
           ))}
         </div>
       ) : (

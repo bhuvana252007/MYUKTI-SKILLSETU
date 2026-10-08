@@ -45,6 +45,90 @@ h1, h2, h3, .font-display {
   position: relative;
 }
 
+/* 3D Native CSS Utilities & Hardware Acceleration */
+.preserve-3d {
+  transform-style: preserve-3d;
+}
+
+.perspective-800 {
+  perspective: 800px;
+}
+
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.perspective-1200 {
+  perspective: 1200px;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+}
+
+/* 3D Page Transition */
+@keyframes pageEnter3D {
+  0% {
+    opacity: 0;
+    transform: perspective(1200px) translate3d(0, 16px, -32px) rotateX(2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: perspective(1200px) translate3d(0, 0, 0) rotateX(0deg);
+  }
+}
+
+.page-3d-transition {
+  animation: pageEnter3D 320ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-style: preserve-3d;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+/* 3D Hero Parallax Layering */
+.hero-parallax-bg {
+  will-change: transform;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.hero-parallax-mid {
+  will-change: transform;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.hero-parallax-fore {
+  will-change: transform;
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+/* 3D Soft Card Styles */
+.card-3d-container {
+  perspective: 1000px;
+}
+
+.card-3d-surface {
+  transform-style: preserve-3d;
+  will-change: transform, box-shadow;
+  backface-visibility: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page-3d-transition {
+    animation: none !important;
+    transform: none !important;
+  }
+  .hero-parallax-bg,
+  .hero-parallax-mid,
+  .hero-parallax-fore,
+  .card-3d-surface {
+    transform: none !important;
+    transition: none !important;
+  }
+}
+
 /* Smooth transitions */
 button, a {
   transition-property: color, background-color, border-color, box-shadow, transform;
