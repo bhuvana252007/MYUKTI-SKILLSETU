@@ -1,46 +1,32 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
-    <linearGradient id="mBgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FAF5EB" />
-      <stop offset="100%" stop-color="#F2E6D5" />
+    <linearGradient id="mTerracottaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#D65E35" />
+      <stop offset="50%" stop-color="#C2542D" />
+      <stop offset="100%" stop-color="#9A3816" />
     </linearGradient>
-    <linearGradient id="mTerracotta" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#D9663E" />
-      <stop offset="100%" stop-color="#A13D19" />
-    </linearGradient>
-    <linearGradient id="mGold" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#F1B843" />
-      <stop offset="100%" stop-color="#B57E12" />
-    </linearGradient>
-    <linearGradient id="mForest" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#2D7254" />
-      <stop offset="100%" stop-color="#143526" />
-    </linearGradient>
+    <radialGradient id="innerGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.12" />
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0" />
+    </radialGradient>
   </defs>
 
-  <!-- Full-bleed background for maskable squircle/circle cropping -->
-  <rect width="512" height="512" fill="url(#mBgGrad)" />
+  <!-- Full-bleed background with zero transparent margins -->
+  <rect width="512" height="512" fill="url(#mTerracottaGrad)" />
+  <circle cx="256" cy="256" r="220" fill="url(#innerGlow)" />
 
-  <!-- Inner Crest scaled down to 78% so it stays completely inside safe zone -->
-  <g transform="translate(56, 56) scale(0.78)">
-    <circle cx="256" cy="256" r="180" fill="url(#mTerracotta)" />
-    <circle cx="256" cy="256" r="172" fill="none" stroke="#F6E4BA" stroke-width="4" opacity="0.6" />
+  <!-- Subtle safe-zone border accent -->
+  <circle cx="256" cy="256" r="185" fill="none" stroke="#FFFFFF" stroke-opacity="0.12" stroke-width="3" stroke-dasharray="6 6" />
 
-    <!-- Bridge "Setu" Arch -->
-    <path d="M 140 330 C 180 250, 332 250, 372 330 C 342 330, 312 285, 256 285 C 200 285, 170 330, 140 330 Z" fill="#FAF5EB" opacity="0.95" />
-
-    <!-- Golden Spire & Sun Ray Accent -->
-    <circle cx="256" cy="180" r="42" fill="url(#mGold)" />
-    <circle cx="256" cy="180" r="34" fill="#FAF5EB" />
-
-    <!-- Botanical Sprout / Leaf Motif -->
-    <path d="M 256 142 C 275 160, 275 195, 256 210 C 237 195, 237 160, 256 142 Z" fill="url(#mForest)" />
-    <path d="M 256 175 C 285 170, 305 185, 305 205 C 285 208, 268 195, 256 175 Z" fill="url(#mForest)" opacity="0.9" />
-    <path d="M 256 175 C 227 170, 207 185, 207 205 C 227 208, 244 195, 256 175 Z" fill="url(#mForest)" opacity="0.9" />
-
-    <!-- Bridge Pillars -->
-    <rect x="248" y="285" width="16" height="55" rx="8" fill="#FAF5EB" opacity="0.95" />
-    <rect x="200" y="295" width="14" height="42" rx="7" fill="#FAF5EB" opacity="0.85" />
-    <rect x="298" y="295" width="14" height="42" rx="7" fill="#FAF5EB" opacity="0.85" />
+  <!-- Centered within 80% Android safe circle -->
+  <g transform="translate(256, 256) scale(11.5) translate(-12, -12)">
+    <path
+      d="M19.414 14.414C21 12.828 22 11.5 22 9.5a5.5 5.5 0 0 0-9.591-3.676.6.6 0 0 1-.818.001A5.5 5.5 0 0 0 2 9.5c0 2.3 1.5 4 3 5.5l5.535 5.362a2 2 0 0 0 2.879.052 2.12 2.12 0 0 0-.004-3 2.124 2.124 0 1 0 3-3 2.124 2.124 0 0 0 3.004 0 2 2 0 0 0 0-2.828l-1.881-1.882a2.41 2.41 0 0 0-3.409 0l-1.71 1.71a2 2 0 0 1-2.828 0 2 2 0 0 1 0-2.828l2.823-2.762"
+      fill="none"
+      stroke="#FFFFFF"
+      stroke-width="2.2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
   </g>
 </svg>

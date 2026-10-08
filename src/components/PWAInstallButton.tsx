@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { usePWAInstall } from '../hooks/usePWAInstall';
-import { Download, Smartphone, X, Check } from 'lucide-react';
+import { Download, Smartphone, X, Check, HeartHandshake } from 'lucide-react';
 
 interface PWAInstallButtonProps {
   variant?: 'navbar' | 'floating' | 'banner';
@@ -80,15 +80,21 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ variant = 'n
                 <X className="w-4 h-4" />
               </button>
 
-              <div className="w-12 h-12 rounded-2xl bg-[#FBEEE8] text-[#C2542D] flex items-center justify-center mb-3">
-                <Smartphone className="w-6 h-6" />
+              {/* SkillSetu Brand Logo Tile */}
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-12 h-12 rounded-2xl bg-[#C2542D] text-white flex items-center justify-center shadow-md border border-[#A13D19]/30 shrink-0">
+                  <HeartHandshake className="w-7 h-7" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold font-heritage text-[#3D2B1F] leading-tight">
+                    Skill<span className="text-[#C2542D]">Setu</span>
+                  </h3>
+                  <p className="text-[11px] text-[#7A6455] font-medium">Add to your Home Screen</p>
+                </div>
               </div>
 
-              <h3 className="text-xl font-bold font-heritage text-[#3D2B1F]">
-                Install SkillSetu on iPhone / iPad
-              </h3>
-              <p className="mt-1 text-xs text-[#6B5749] mb-4">
-                Enjoy full offline listings & quick access directly from your home screen:
+              <p className="text-xs text-[#6B5749] mb-4">
+                Enjoy full offline listings & quick access directly from your phone's home screen:
               </p>
 
               <div className="space-y-3 text-xs text-[#3D2B1F]">
