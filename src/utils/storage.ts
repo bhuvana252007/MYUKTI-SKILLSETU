@@ -250,8 +250,15 @@ export function getStoredListings(): SellerListing[] {
         const seed = seedMap.get(l.id);
         const photo = seed && !l.isMyListing ? seed.photo : (l.photo || seed?.photo || '');
         return {
+          ...seed,
           ...l,
           photo,
+          communityName: l.communityName || seed?.communityName,
+          memberSince: l.memberSince || seed?.memberSince,
+          verificationStatus: l.verificationStatus || seed?.verificationStatus,
+          completedTransactions: l.completedTransactions ?? seed?.completedTransactions,
+          rating: l.rating ?? seed?.rating,
+          reviewCount: l.reviewCount ?? seed?.reviewCount,
           isMyListing: l.isMyListing || myIds.includes(l.id),
         };
       });

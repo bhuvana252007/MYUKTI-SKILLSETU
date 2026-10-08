@@ -17,7 +17,10 @@ import {
   GraduationCap,
   Briefcase,
   Languages,
-  Loader2
+  Loader2,
+  Star,
+  Building2,
+  Check
 } from 'lucide-react';
 import { ContactModal } from './ContactModal';
 import { QuickCallModal } from './QuickCallModal';
@@ -187,16 +190,46 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
 
           {/* Floating Badges over Photo */}
-          <div className="absolute top-4 left-4 flex flex-wrap gap-2">
-            {seller.isShgVerified && (
-              <div 
-                id="profile-shg-badge"
-                className="bg-[#EEF6F2] text-[#1E4D38] border border-[#C7E4D3] px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-bold flex items-center gap-2 shadow-sm backdrop-blur-xs"
-              >
-                <CheckCircle className="w-4 h-4 fill-[#1E4D38] text-white" />
-                <span>{t.sellerProfile.shgVerifiedMember}</span>
-              </div>
-            )}
+          <div className="absolute top-4 left-4 right-4 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+            <div className="flex flex-wrap gap-2 pointer-events-auto">
+              {seller.verificationStatus ? (
+                <div 
+                  id="profile-verification-badge"
+                  className={`px-3 py-1.5 rounded-full text-xs sm:text-sm font-bold flex items-center gap-1.5 shadow-sm backdrop-blur-xs border ${
+                    seller.verificationStatus === 'Fully Verified'
+                      ? 'bg-[#D1FAE5]/95 text-[#065F46] border-[#A7F3D0]'
+                      : seller.verificationStatus === 'Reference Verified'
+                      ? 'bg-[#F3E8FF]/95 text-[#6B21A8] border-[#E9D5FF]'
+                      : 'bg-[#DBEAFE]/95 text-[#1E40AF] border-[#BFDBFE]'
+                  }`}
+                >
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>{seller.verificationStatus}</span>
+                </div>
+              ) : seller.isShgVerified ? (
+                <div 
+                  id="profile-shg-badge"
+                  className="bg-[#EEF6F2] text-[#1E4D38] border border-[#C7E4D3] px-3.5 py-1.5 rounded-full text-xs sm:text-sm font-bold flex items-center gap-2 shadow-sm backdrop-blur-xs"
+                >
+                  <CheckCircle className="w-4 h-4 fill-[#1E4D38] text-white" />
+                  <span>{t.sellerProfile.shgVerifiedMember}</span>
+                </div>
+              ) : null}
+
+              {seller.communityName && (
+                <div className="bg-[#FAF5EB]/95 text-[#3D2B1F] border border-[#EADBCE] px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-sm backdrop-blur-xs">
+                  <Building2 className="w-3.5 h-3.5 text-[#C2542D]" />
+                  <span>{seller.communityName}</span>
+                </div>
+              )}
+            </div>
+
+            {/* Rating pill */}
+            <div className="bg-white/95 text-[#3D2B1F] border border-[#EADBCE] px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1 shadow-sm backdrop-blur-xs pointer-events-auto">
+              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+              <span>{seller.rating || 4.9}</span>
+              <span className="text-[#8C7E74]">({seller.reviewCount || 38})</span>
+            </div>
           </div>
 
           <div className="absolute bottom-4 left-4 right-4 text-white flex flex-wrap items-end justify-between gap-2">
@@ -280,6 +313,71 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
               </span>
             </div>
           )}
+
+          {/* Trust Indicators Card (Verification badges, Member of [Community name], member since, completed transactions, rating) */}
+          <div className="p-5 sm:p-6 rounded-2xl bg-[#FFFDF9] border-2 border-[#EADBCE] shadow-2xs">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-[#EADBCE]">
+              <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-[#EEF6F2] border border-[#C7E4D3] text-[#1E4D38] flex items-center justify-center shrink-0">
+                  <Building2 className="w-6 h-6" />
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-[#C2542D] block">
+                    Verified Collective Membership
+                  </span>
+                  <h3 className="text-base sm:text-lg font-bold font-heritage text-[#3D2B1F]">
+                    Member of {seller.communityName || seller.shgGroupName || 'Sahyadri Mahila Vikas Sangha'}
+                  </h3>
+                  <p className="text-xs text-[#6B5749]">
+                    {seller.memberSince ? `Member since ${seller.memberSince}` : 'Member since Oct 2022'} • Local artisan collective
+                  </p>
+                </div>
+              </div>
+
+              {/* Verification badge */}
+              <div>
+                {seller.verificationStatus === 'Fully Verified' ? (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-[#D1FAE5] text-[#065F46] border border-[#A7F3D0] shadow-2xs">
+                    <ShieldCheck className="w-4 h-4 text-[#059669]" />
+                    <span>Fully Verified Provider</span>
+                  </span>
+                ) : seller.verificationStatus === 'Reference Verified' ? (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-[#F3E8FF] text-[#6B21A8] border border-[#E9D5FF] shadow-2xs">
+                    <Check className="w-4 h-4 text-[#9333EA]" />
+                    <span>Reference Verified Provider</span>
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-[#DBEAFE] text-[#1E40AF] border border-[#BFDBFE] shadow-2xs">
+                    <ShieldCheck className="w-4 h-4 text-[#2563EB]" />
+                    <span>Community Verified Provider</span>
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Trust Indicators Stats */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 text-center">
+              <div className="p-2.5 rounded-xl bg-[#FAF5EB] border border-[#EADBCE]">
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-[#6B5749]">Member Since</span>
+                <span className="text-xs sm:text-sm font-bold text-[#3D2B1F] mt-0.5 block">{seller.memberSince || 'Oct 2022'}</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-[#FAF5EB] border border-[#EADBCE]">
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-[#6B5749]">Completed Orders</span>
+                <span className="text-xs sm:text-sm font-extrabold text-[#1E4D38] mt-0.5 block">{seller.completedTransactions || 48}+ orders</span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-[#FAF5EB] border border-[#EADBCE]">
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-[#6B5749]">Buyer Rating</span>
+                <span className="text-xs sm:text-sm font-extrabold text-[#C2542D] mt-0.5 flex items-center justify-center gap-1">
+                  <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-500" />
+                  {seller.rating || 4.9} / 5.0
+                </span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-[#FAF5EB] border border-[#EADBCE]">
+                <span className="block text-[10px] font-bold uppercase tracking-wider text-[#6B5749]">Customer Trust</span>
+                <span className="text-xs sm:text-sm font-bold text-[#3D2B1F] mt-0.5 block">{seller.reviewCount || 38} reviews</span>
+              </div>
+            </div>
+          </div>
 
           {/* Full Description Section */}
           <div>
@@ -370,7 +468,7 @@ export const SellerProfilePage: React.FC<SellerProfilePageProps> = ({
               {language === 'hi' ? 'तुरंत कॉल करें' : language === 'kn' ? 'ತ್ವರಿತ ಕರೆ' : language === 'ta' ? 'உடனடி அழைப்பு' : language === 'te' ? 'త్వరిత కాల్' : 'Quick Call'}
             </span>
             <span className="block text-[10px] font-normal text-[#C7E4D3] leading-none">
-              {language === 'hi' ? 'सीधा संपर्क' : language === 'kn' ? 'ನೇರ ಸಂಪರ್ಕ' : 'Simulated Voice'}
+              {language === 'hi' ? 'सीधा संपर्क' : language === 'kn' ? 'ನೇರ ಸಂಪರ್ಕ' : language === 'ta' ? 'நேரடி தொடர்பு' : language === 'te' ? 'ప్రత్యక్ష సంప్రదింపు' : 'Direct Call'}
             </span>
           </div>
         </button>

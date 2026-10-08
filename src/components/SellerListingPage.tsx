@@ -692,7 +692,7 @@ export const SellerListingPage: React.FC<SellerListingPageProps> = ({
                     <span>{translationStatus || 'Saving & Translating...'}</span>
                   </>
                 ) : (
-                  <span>{isEditMode ? (t.sellerListing.saveChangesBtn || 'Save Changes • सुरक्षित करें') : t.sellerListing.submitBtn}</span>
+                  <span>{isEditMode ? (t.sellerListing.saveChangesBtn || 'Save Changes') : t.sellerListing.submitBtn}</span>
                 )}
               </button>
               <p className="text-xs text-center text-[#6A5D54] mt-2.5">

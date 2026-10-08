@@ -77,6 +77,22 @@ export const Footer: React.FC<FooterProps> = ({ language, onNavigate, onResetDat
                   {t.nav.myListings}
                 </button>
               </li>
+              <li>
+                <button
+                  onClick={() => onNavigate('community-dashboard')}
+                  className="text-[#1E4D38] hover:text-[#163829] font-bold transition-colors cursor-pointer"
+                >
+                  Community Dashboard
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigate('community-transactions')}
+                  className="text-[#6B5749] hover:text-[#C2542D] transition-colors cursor-pointer"
+                >
+                  Community Transactions
+                </button>
+              </li>
             </ul>
           </div>
 
@@ -104,7 +120,7 @@ export const Footer: React.FC<FooterProps> = ({ language, onNavigate, onResetDat
 
         {/* Bottom bar */}
         <div className="pt-6 border-t border-[#EADBCE] flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#7A6455]">
-          <p>© {new Date().getFullYear()} SkillSetu. {t.taglineHero || 'her voice.her income.her life'}</p>
+          <p>© {new Date().getFullYear()} SkillSetu. {t.appTagline}</p>
           <div className="flex items-center gap-4">
             <button
               onClick={onResetData}

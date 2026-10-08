@@ -14,7 +14,8 @@ import {
   MapPin, 
   CheckCircle,
   Users,
-  Mic
+  Mic,
+  Building2
 } from 'lucide-react';
 
 interface HomePageProps {
@@ -188,7 +189,7 @@ export const HomePage: React.FC<HomePageProps> = ({
               <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl overflow-hidden shadow-lg border-2 border-[#C2542D]/30 bg-[#FAF5EB] p-1 ring-4 ring-[#FBEEE8]">
                 <img 
                   src="/app-logo.png" 
-                  alt="SkillSetu Logo - Her Voice, Her Income, Her Life" 
+                  alt="SkillSetu Logo" 
                   className="w-full h-full object-contain rounded-2xl" 
                 />
               </div>
@@ -198,15 +199,11 @@ export const HomePage: React.FC<HomePageProps> = ({
               Skill<span className="text-[#C2542D]">Setu</span>
             </h1>
 
-            {/* Tagline Below in Smaller Elegant Text */}
+            {/* Tagline Below in Smaller Elegant Text (single occurrence, no quotation marks) */}
             <p 
-              className="text-2xl sm:text-3xl lg:text-4xl text-[#3D2517] tracking-wide mb-3 drop-shadow-xs font-bold not-italic"
+              className="text-base sm:text-2xl lg:text-3xl text-[#3D2517] tracking-wide mb-6 drop-shadow-xs font-bold not-italic"
               style={{ fontFamily: '"Times New Roman", Times, serif', fontWeight: 'bold', fontStyle: 'normal' }}
             >
-              "{t.taglineHero || 'her voice.her income.her life'}"
-            </p>
-
-            <p className="text-base sm:text-lg text-[#3D2517] font-medium max-w-2xl mx-auto leading-relaxed mb-6 drop-shadow-2xs">
               {t.appTagline}
             </p>
           </div>
@@ -225,19 +222,19 @@ export const HomePage: React.FC<HomePageProps> = ({
             <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 max-w-3xl mx-auto mb-6">
               <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FFFDF9]/95 backdrop-blur-xs text-[#3D2B1F] text-xs sm:text-sm font-semibold border border-[#EADBCE] shadow-xs">
                 <Scissors className="w-3.5 h-3.5 text-[#C2542D]" />
-                <span>{t.categories.Tailoring?.title} ({t.categories.Tailoring?.subtitle})</span>
+                <span>{t.categories.Tailoring?.title}</span>
               </span>
               <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FFFDF9]/95 backdrop-blur-xs text-[#3D2B1F] text-xs sm:text-sm font-semibold border border-[#EADBCE] shadow-xs">
                 <UtensilsCrossed className="w-3.5 h-3.5 text-[#D49B24]" />
-                <span>{t.categories.Cooking?.title} ({t.categories.Cooking?.subtitle})</span>
+                <span>{t.categories.Cooking?.title}</span>
               </span>
               <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FFFDF9]/95 backdrop-blur-xs text-[#3D2B1F] text-xs sm:text-sm font-semibold border border-[#EADBCE] shadow-xs">
                 <Sparkles className="w-3.5 h-3.5 text-[#C2542D]" />
-                <span>{t.categories.Mehendi?.title} ({t.categories.Mehendi?.subtitle})</span>
+                <span>{t.categories.Mehendi?.title}</span>
               </span>
               <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-[#FFFDF9]/95 backdrop-blur-xs text-[#3D2B1F] text-xs sm:text-sm font-semibold border border-[#EADBCE] shadow-xs">
                 <GraduationCap className="w-3.5 h-3.5 text-[#1E4D38]" />
-                <span>{t.categories.Tutoring?.title} ({t.categories.Tutoring?.subtitle})</span>
+                <span>{t.categories.Tutoring?.title}</span>
               </span>
             </div>
 
@@ -306,6 +303,40 @@ export const HomePage: React.FC<HomePageProps> = ({
           >
             <Mic className="w-4 h-4 text-[#C2542D]" />
             <span>{t.home.voiceTip}</span>
+          </div>
+        </div>
+      </section>
+
+      {/* Community Spotlight & Registration Banner */}
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        <div className="p-6 sm:p-8 rounded-3xl bg-gradient-to-r from-[#1E4D38] via-[#245C44] to-[#1E4D38] text-white shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative overflow-hidden border-2 border-[#163829]">
+          <div className="relative z-10 max-w-xl">
+            <span className="inline-block px-3 py-1 rounded-full bg-[#DDA74F] text-[#3D2B1F] text-xs font-bold uppercase tracking-wider mb-2">
+              For SHG Leaders & Village Collectives
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-bold font-heritage text-white mb-2">
+              Register Your Community on SkillSetu
+            </h2>
+            <p className="text-xs sm:text-sm text-[#E2EFE7] leading-relaxed">
+              Bring your self-help group, cooperative, or women's collective onto the platform. Enroll members via 4-step wizard or CSV upload, generate verified trust badges, and track local transactions.
+            </p>
+          </div>
+
+          <div className="relative z-10 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0 w-full sm:w-auto">
+            <button
+              onClick={() => onNavigate('community-wizard')}
+              className="px-5 py-3.5 rounded-2xl bg-[#DDA74F] hover:bg-[#C9943E] text-[#2A1E17] font-bold text-sm shadow-md transition-all cursor-pointer flex items-center justify-center gap-2"
+            >
+              <Building2 className="w-4 h-4" />
+              <span>Register Community</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => onNavigate('community-dashboard')}
+              className="px-5 py-3.5 rounded-2xl bg-white/15 hover:bg-white/25 text-white font-bold text-sm border border-white/30 backdrop-blur-xs transition-all cursor-pointer flex items-center justify-center gap-2"
+            >
+              <span>Community Dashboard</span>
+            </button>
           </div>
         </div>
       </section>

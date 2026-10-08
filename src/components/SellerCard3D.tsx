@@ -19,6 +19,10 @@ export const SellerCard3D: React.FC<SellerCard3DProps> = ({
   const t = TRANSLATIONS[language];
   const cardRef = useRef<HTMLDivElement>(null);
 
+  const displayName = seller.translations?.[language]?.name || seller.name;
+  const displayLocation = seller.translations?.[language]?.location || seller.location;
+  const displayDescription = seller.translations?.[language]?.description || seller.description;
+
   const [tilt, setTilt] = useState<{
     rotateX: number;
     rotateY: number;
@@ -173,16 +177,32 @@ export const SellerCard3D: React.FC<SellerCard3DProps> = ({
           {/* Subtle dark gradient at the bottom of photo */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
 
-          {/* SHG Verified Badge with Checkmark icon */}
-          {seller.isShgVerified && (
-            <div
-              className="absolute top-3 left-3 bg-[#EEF6F2] text-[#1E4D38] border border-[#C7E4D3] px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1.5 shadow-sm"
-              style={{ transform: 'translateZ(26px)' }}
-            >
-              <CheckCircle className="w-4 h-4 fill-[#1E4D38] text-white" />
-              <span>{t.shgBadge}</span>
-            </div>
-          )}
+          {/* Trust & Verification Badges */}
+          <div className="absolute top-3 left-3 flex flex-col gap-1 max-w-[70%]" style={{ transform: 'translateZ(26px)' }}>
+            {seller.verificationStatus ? (
+              <div className={`px-2.5 py-0.5 rounded-full text-[11px] font-bold flex items-center gap-1 shadow-sm ${
+                seller.verificationStatus === 'Fully Verified'
+                  ? 'bg-[#D1FAE5] text-[#065F46] border border-[#A7F3D0]'
+                  : seller.verificationStatus === 'Reference Verified'
+                  ? 'bg-[#F3E8FF] text-[#6B21A8] border border-[#E9D5FF]'
+                  : 'bg-[#DBEAFE] text-[#1E40AF] border border-[#BFDBFE]'
+              }`}>
+                <CheckCircle className="w-3.5 h-3.5" />
+                <span>{seller.verificationStatus}</span>
+              </div>
+            ) : seller.isShgVerified ? (
+              <div className="bg-[#EEF6F2] text-[#1E4D38] border border-[#C7E4D3] px-2.5 py-0.5 rounded-full text-[11px] font-bold flex items-center gap-1 shadow-sm">
+                <CheckCircle className="w-3.5 h-3.5 fill-[#1E4D38] text-white" />
+                <span>{t.shgBadge}</span>
+              </div>
+            ) : null}
+
+            {seller.communityName && (
+              <span className="bg-[#FAF5EB]/95 text-[#3D2B1F] border border-[#EADBCE] px-2 py-0.5 rounded-full text-[10px] font-semibold backdrop-blur-xs truncate shadow-2xs">
+                {seller.communityName}
+              </span>
+            )}
+          </div>
 
           {/* Category Pill */}
           <div
@@ -199,7 +219,7 @@ export const SellerCard3D: React.FC<SellerCard3DProps> = ({
           {/* Name and Price */}
           <div className="flex items-start justify-between gap-2 mb-2">
             <h2 className="text-xl sm:text-2xl font-bold font-heritage text-[#3D2B1F] group-hover:text-[#1E4D38] transition-colors leading-snug">
-              {seller.name}
+              {displayName}
             </h2>
             <span className="text-base sm:text-lg font-extrabold text-[#C2542D] shrink-0">
               {seller.price}
@@ -209,12 +229,12 @@ export const SellerCard3D: React.FC<SellerCard3DProps> = ({
           {/* Location with Icon */}
           <div className="flex items-center gap-1.5 text-xs sm:text-sm text-[#6B5749] mb-3 font-medium">
             <MapPin className="w-4 h-4 text-[#C2542D] shrink-0" />
-            <span className="truncate">{seller.location}</span>
+            <span className="truncate">{displayLocation}</span>
           </div>
 
           {/* Short Description */}
           <p className="text-sm text-[#5C4433] line-clamp-3 leading-relaxed mb-4">
-            {seller.description}
+            {displayDescription}
           </p>
         </div>
       </div>

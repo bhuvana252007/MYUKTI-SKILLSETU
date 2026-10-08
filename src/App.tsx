@@ -20,10 +20,15 @@ import { BuyerSearchPage } from './components/BuyerSearchPage';
 import { SellerProfilePage } from './components/SellerProfilePage';
 import { MyListingsPage } from './components/MyListingsPage';
 import { LanguageSelectionScreen } from './components/LanguageSelectionScreen';
+import { RoleSelectionScreen } from './components/RoleSelectionScreen';
+import { CommunityWizard } from './components/CommunityWizard';
+import { CommunityDashboard } from './components/CommunityDashboard';
+import { CommunityTransactionsPage } from './components/CommunityTransactionsPage';
 import { GeminiChatAssistant } from './components/GeminiChatAssistant';
 import { LiveVoiceModal } from './components/LiveVoiceModal';
 import { OfflineIndicator } from './components/OfflineIndicator';
 import { Footer } from './components/Footer';
+import { TRANSLATIONS } from './translations';
 import { Sparkles, Radio } from 'lucide-react';
 
 const PREFERRED_LANG_KEY = 'skillsetu_preferred_lang';
@@ -75,6 +80,12 @@ export default function App() {
       });
   }, []);
 
+  // Dynamically update document title with the selected language's tagline
+  useEffect(() => {
+    const t = TRANSLATIONS[language] || TRANSLATIONS.en;
+    document.title = `SkillSetu - ${t.appTagline}`;
+  }, [language]);
+
   // Scroll to top on page change
   const navigateTo = (page: PageView) => {
     if (currentPage !== 'language-select') {
@@ -94,9 +105,11 @@ export default function App() {
       localStorage.setItem(PREFERRED_LANG_KEY, newLang);
     } catch (_) {}
 
-    // If coming from initial landing, go to home; otherwise go back to where the user was
+    // As requested: After the language selection screen, add a screen titled "How are you participating?"
     if (currentPage === 'language-select') {
-      const target = previousPage === 'language-select' ? 'home' : previousPage;
+      setCurrentPage('role-select');
+    } else {
+      const target = previousPage === 'language-select' ? 'role-select' : previousPage;
       setCurrentPage(target);
     }
   };
@@ -154,6 +167,30 @@ export default function App() {
       <LanguageSelectionScreen
         onSelectLanguage={handleSelectLanguage}
         currentLanguage={language}
+      />
+    );
+  }
+
+  // If on Role Selection screen ("How are you participating?")
+  if (currentPage === 'role-select') {
+    return (
+      <RoleSelectionScreen
+        language={language}
+        onSelectBuyer={() => navigateTo('buyer-search')}
+        onSelectShgMember={() => {
+          setEditingListing(null);
+          navigateTo('seller-listing');
+        }}
+        onSelectIndependent={() => {
+          setEditingListing(null);
+          navigateTo('seller-listing');
+        }}
+        onSelectCommunity={() => navigateTo('community-wizard')}
+        onSelectCommunityDashboard={() => navigateTo('community-dashboard')}
+        onChangeLanguage={() => {
+          setPreviousPage('role-select');
+          setCurrentPage('language-select');
+        }}
       />
     );
   }
@@ -228,6 +265,35 @@ export default function App() {
               language={language}
               onOpenLiveVoice={() => setIsLiveVoiceOpen(true)}
               onNavigateHome={() => navigateTo('home')}
+            />
+          )}
+
+          {currentPage === 'community-wizard' && (
+            <CommunityWizard
+              language={language}
+              onNavigate={navigateTo}
+              onCommunitySubmitted={() => navigateTo('community-dashboard')}
+            />
+          )}
+
+          {currentPage === 'community-dashboard' && (
+            <CommunityDashboard
+              language={language}
+              onNavigate={navigateTo}
+              onSelectProviderListing={(id) => {
+                const found = listings.find((l) => l.id === id);
+                if (found) {
+                  setSelectedListing(found);
+                  navigateTo('seller-profile');
+                }
+              }}
+            />
+          )}
+
+          {currentPage === 'community-transactions' && (
+            <CommunityTransactionsPage
+              language={language}
+              onNavigate={navigateTo}
             />
           )}
 

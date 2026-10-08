@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
 import { usePWAInstall } from '../hooks/usePWAInstall';
+import { TRANSLATIONS } from '../translations';
+import { SupportedLanguage } from '../types';
 import { Download, Smartphone, X, Check } from 'lucide-react';
 
 interface PWAInstallButtonProps {
   variant?: 'navbar' | 'floating' | 'banner';
+  language?: SupportedLanguage;
 }
 
-export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ variant = 'navbar' }) => {
+export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ variant = 'navbar', language = 'en' }) => {
   const { isInstallable, isInstalled, isIOS, install } = usePWAInstall();
   const [showIOSGuide, setShowIOSGuide] = useState(false);
   const [isInstalling, setIsInstalling] = useState(false);
+
+  const t = TRANSLATIONS[language] || TRANSLATIONS.en;
 
   // If already running as an installed PWA / standalone, suppress the prompt
   if (isInstalled) {
@@ -93,7 +98,7 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({ variant = 'n
                   <h3 className="text-xl font-bold font-heritage text-[#3D2B1F] leading-tight">
                     Skill<span className="text-[#C2542D]">Setu</span>
                   </h3>
-                  <p className="text-[11px] text-[#C2542D] font-medium italic">her voice.her income.her life</p>
+                  <p className="text-[11px] text-[#C2542D] font-medium not-italic">{t.appTagline}</p>
                 </div>
               </div>
 

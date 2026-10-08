@@ -1,7 +1,7 @@
 import React from 'react';
 import { PageView, SupportedLanguage } from '../types';
 import { TRANSLATIONS, LANGUAGE_OPTIONS } from '../translations';
-import { Search, PlusCircle, Home, Globe, BookmarkCheck, Sparkles } from 'lucide-react';
+import { Search, PlusCircle, Home, Globe, BookmarkCheck, Sparkles, Building2, Users } from 'lucide-react';
 import { PWAInstallButton } from './PWAInstallButton';
 
 interface NavbarProps {
@@ -46,8 +46,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                   {t.shgBadge}
                 </span>
               </div>
-              <p className="hidden sm:block text-[11px] sm:text-xs text-[#7A6455] font-semibold tracking-wide max-w-xs truncate">
-                {t.taglineHero || t.appTagline}
+              <p className="text-[10px] sm:text-xs text-[#7A6455] font-semibold tracking-wide max-w-[170px] sm:max-w-xs truncate">
+                {t.appTagline}
               </p>
             </div>
           </button>
@@ -55,7 +55,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Navigation Actions */}
           <nav className="flex items-center gap-1 sm:gap-2">
             {/* PWA Install Button */}
-            <PWAInstallButton variant="navbar" />
+            <PWAInstallButton variant="navbar" language={language} />
 
             {/* Language Switcher Button */}
             <button
@@ -111,6 +111,21 @@ export const Navbar: React.FC<NavbarProps> = ({
               <span className="hidden md:inline">AI Assistant</span>
             </button>
 
+            {/* Community Dashboard */}
+            <button
+              id="nav-community-btn"
+              onClick={() => onNavigate('community-dashboard')}
+              className={`px-2 py-1.5 sm:px-3 sm:py-2 rounded-xl text-xs sm:text-sm font-medium transition-all flex items-center gap-1.5 border cursor-pointer ${
+                currentPage === 'community-dashboard' || currentPage === 'community-transactions' || currentPage === 'community-wizard'
+                  ? 'bg-[#1E4D38] text-white border-[#1E4D38]'
+                  : 'bg-[#FFFDF9] text-[#1E4D38] border-[#C7E4D3] hover:bg-[#EEF6F2]'
+              }`}
+              title="Community Dashboard & Transactions"
+            >
+              <Building2 className="w-4 h-4 text-[#DDA74F]" />
+              <span className="hidden lg:inline">Community</span>
+            </button>
+
             {/* My Listings */}
             <button
               id="nav-my-listings-btn"
@@ -123,6 +138,17 @@ export const Navbar: React.FC<NavbarProps> = ({
             >
               <BookmarkCheck className="w-4 h-4 text-[#C2542D]" />
               <span className="hidden md:inline">{t.nav.myListings}</span>
+            </button>
+
+            {/* Role Switcher */}
+            <button
+              id="nav-role-btn"
+              onClick={() => onNavigate('role-select')}
+              className="px-2 py-1.5 sm:px-2.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold bg-[#FAF5EB] hover:bg-[#EFE4D3] text-[#5C4533] border border-[#EADBCE] flex items-center gap-1 transition-colors cursor-pointer"
+              title="Switch Role: Buyer / Provider / Community"
+            >
+              <Users className="w-4 h-4 text-[#C2542D]" />
+              <span className="hidden xl:inline">Role</span>
             </button>
 
             {/* Seller Listing (Offer Service) */}

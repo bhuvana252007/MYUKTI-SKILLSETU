@@ -40,7 +40,6 @@ export const LANGUAGE_OPTIONS: LanguageConfig[] = [
 
 export interface TranslationDictionary {
   appTagline: string;
-  taglineHero: string;
   shgBadge: string;
   nav: {
     home: string;
@@ -225,8 +224,7 @@ export interface TranslationDictionary {
 
 export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
   en: {
-    appTagline: 'her voice.her income.her life',
-    taglineHero: 'her voice.her income.her life',
+    appTagline: 'Her Voice. Her Income. Her Future.',
     shgBadge: 'SHG Verified',
     nav: {
       home: 'Home',
@@ -241,10 +239,10 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
       heroSubtitle:
         'Find trusted local women for tailoring, home cooking, child tutoring, and festive mehendi. Or share your own skills and start earning with dignity.',
       btnOffer: 'I offer a service',
-      btnOfferSub: 'अपनी सेवा जोड़ें • For women who have a skill',
+      btnOfferSub: 'For women who have a skill',
       btnOfferAction: 'List Service Now',
       btnNeed: 'I need a service',
-      btnNeedSub: 'मुझे सेवा चाहिए • Find verified women nearby',
+      btnNeedSub: 'Find verified women nearby',
       btnNeedAction: 'Search Listings',
       voiceTip: 'Voice typing enabled! Speak in your language to describe your service.',
       categoriesTitle: 'Browse by Local Skills',
@@ -285,27 +283,27 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
     categories: {
       Tailoring: {
         title: 'Tailoring',
-        subtitle: 'सिलाई व कटिंग',
+        subtitle: 'Stitching & Alterations',
         desc: 'Blouses, suits, kurti, saree pico & alterations',
       },
       Cooking: {
         title: 'Cooking',
-        subtitle: 'घर का खाना व टिफिन',
+        subtitle: 'Homemade Meals & Tiffins',
         desc: 'Fresh homemade daily meals, tiffins & festive sweets',
       },
       Tutoring: {
         title: 'Tutoring',
-        subtitle: 'बच्चों की ट्यूशन',
+        subtitle: 'School Tuition & Homework',
         desc: 'Primary & middle school maths, reading, and homework help',
       },
       Mehendi: {
         title: 'Mehendi',
-        subtitle: 'सुंदर मेहंदी कला',
+        subtitle: 'Henna & Bridal Design',
         desc: 'Bridal, festival & celebration herbal organic mehendi',
       },
       Other: {
         title: 'Other Skills',
-        subtitle: 'अन्य हुनर',
+        subtitle: 'Handicrafts & Other Skills',
         desc: 'Embroidery, handicrafts & traditional artisan works',
       },
     },
@@ -317,7 +315,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
       editTitle: 'Edit Your Skill Listing',
       editSubtitle: 'Update your service details, price, or description below.',
       nameLabel: 'Your Full Name',
-      nameHelper: 'आपका पूरा नाम (e.g. Sunita Devi)',
+      nameHelper: 'Your full name (e.g. Sunita Devi)',
       namePlaceholder: 'e.g. Sunita Devi',
       categoryLabel: 'Skill Category',
       categoryHelper: 'What skill or service do you offer?',
@@ -346,8 +344,8 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
       shgCheckbox: 'I am a member of a Self-Help Group (SHG / Mahila Bachat Gat)',
       shgHelper: 'Adds the green "SHG Verified" badge to your card so buyers trust your service.',
       shgGroupPlaceholder: 'e.g. Maa Durga Mahila Bachat Gat (Optional group name)',
-      submitBtn: 'Submit Listing • सेवा जोड़ें',
-      saveChangesBtn: 'Save Changes • बदलाव सहेजें',
+      submitBtn: 'Submit Listing',
+      saveChangesBtn: 'Save Changes',
       submitSubtext: 'Saved instantly to your browser. Zero commission or registration fees.',
       successTitle: 'Congratulations! Your Service is Listed',
       successDesc: (name, category) =>
@@ -368,9 +366,9 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
       searchSubtitle:
         'Browse verified women providing tailoring, cooking, tutoring, mehendi, and more near you.',
       filterCategoryLabel: 'Filter by Skill Category',
-      allCategories: 'All Categories (सभी हुनर)',
+      allCategories: 'All Categories',
       filterLocationLabel: 'Filter by Location',
-      allLocations: 'All Locations (सभी क्षेत्र)',
+      allLocations: 'All Locations',
       searchKeywordLabel: 'Search by Keyword or Name',
       searchPlaceholder: 'e.g. blouse, tiffin, maths...',
       showing: 'Showing',
@@ -404,8 +402,8 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
       hlFairPricing: 'Fair, transparent pricing',
       hlNoCommission: 'Zero middleman commission',
       hlDirectPay: 'Cash or UPI direct payment',
-      contactSellerBtn: 'Contact Seller (संपर्क करें)',
-      contactSubtext: 'Instant phone call or WhatsApp message • Direct connect',
+      contactSellerBtn: 'Contact Seller',
+      contactSubtext: 'Instant phone call or WhatsApp message',
     },
     contactModal: {
       contactTitle: (name) => `Contact ${name}`,
@@ -430,8 +428,8 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
       shgSupport: 'Supporting Self-Help Groups (SHGs) across India',
       exploreTitle: 'Explore',
       homeLink: 'Home',
-      buyerSearchLink: 'Find a Service (Buyer Search)',
-      sellerListingLink: 'Offer a Service (Seller Listing)',
+      buyerSearchLink: 'Find a Service',
+      sellerListingLink: 'Offer a Service',
       localSkillsTitle: 'Local Skills',
       copyright: 'SkillSetu. Empowering grassroots women entrepreneurs.',
       resetDataBtn: 'Reset Sample Data',
@@ -439,8 +437,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
   },
 
   hi: {
-    appTagline: 'उसकी आवाज़ • उसकी आमदनी • उसका जीवन',
-    taglineHero: 'उसकी आवाज़ • उसकी आमदनी • उसका जीवन • her voice.her income.her life',
+    appTagline: 'उसकी आवाज़ • उसकी आमदनी • उसका भविष्य',
     shgBadge: 'स्वयं सहायता समूह सत्यापित',
     nav: {
       home: 'होम',
@@ -482,7 +479,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
       step4Desc: 'बिना किसी बिचौलिये या कमीशन के सीधे फोन कॉल या व्हाट्सएप पर बात करें।',
     },
     myListings: {
-      pageTitle: 'मेरी सेवाएं (My Listings)',
+      pageTitle: 'मेरी सेवाएं',
       pageSubtitle: 'अपनी सक्रिय सेवाओं को देखें, संपादित करें या कभी भी बदलें',
       emptyTitle: 'आपने अभी तक कोई सेवा नहीं जोड़ी है',
       emptySubtitle: 'सिलाई, खाना, ट्यूशन या मेहंदी की सेवा जोड़कर बिना किसी कमीशन के सीधे पड़ोसियों से कमाई शुरू करें।',
@@ -560,8 +557,8 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
       shgCheckbox: 'मैं स्वयं सहायता समूह (महिला बचत गट) की सदस्य हूँ',
       shgHelper: 'ग्राहकों के भरोसे के लिए आपके कार्ड पर हरा SHG बैज लगाया जाएगा।',
       shgGroupPlaceholder: 'जैसे: माँ दुर्गा महिला बचत गट (समूह का नाम)',
-      submitBtn: 'सेवा जमा करें • Submit Listing',
-      saveChangesBtn: 'बदलाव सहेजें • Save Changes',
+      submitBtn: 'सेवा जमा करें',
+      saveChangesBtn: 'बदलाव सहेजें',
       submitSubtext: 'ब्राउज़र में तुरंत सुरक्षित। कोई शुल्क या कमीशन नहीं।',
       successTitle: 'बधाई हो! आपकी सेवा जुड़ गई है',
       successDesc: (name, category) =>
@@ -618,7 +615,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
       hlFairPricing: 'उचित और पारदर्शी दर',
       hlNoCommission: 'शून्य बिचौलिया कमीशन',
       hlDirectPay: 'नकद या यूपीआई द्वारा सीधा भुगतान',
-      contactSellerBtn: 'संपर्क करें (Contact Seller)',
+      contactSellerBtn: 'संपर्क करें',
       contactSubtext: 'सीधे फोन कॉल या व्हाट्सएप संदेश द्वारा बात करें',
     },
     contactModal: {
@@ -653,8 +650,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
   },
 
   kn: {
-    appTagline: 'ಅವಳ ಧ್ವನಿ • ಅವಳ ಆದಾಯ • ಅವಳ ಜೀವನ',
-    taglineHero: 'ಅವಳ ಧ್ವನಿ • ಅವಳ ಆದಾಯ • ಅವಳ ಜೀವನ • her voice.her income.her life',
+    appTagline: 'ಅವಳ ಧ್ವನಿ • ಅವಳ ಆದಾಯ • ಅವಳ ಭವಿಷ್ಯ',
     shgBadge: 'ಸ್ವಸಹಾಯ ಸಂಘ ದೃಢೀಕೃತ',
     nav: {
       home: 'ಮುಖಪುಟ',
@@ -696,7 +692,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
       step4Desc: 'ಯಾವುದೇ ಕಮಿಷನ್ ಅಥವಾ ಮಧ್ಯವರ್ತಿಗಳಿಲ್ಲದೆ ನೇರವಾಗಿ ಫೋನ್ ಕರೆ ಅಥವಾ ವಾಟ್ಸಾಪ್ ಮೂಲಕ ಸಂಪರ್ಕಿಸಿ.',
     },
     myListings: {
-      pageTitle: 'ನನ್ನ ಸೇವೆಗಳು (My Listings)',
+      pageTitle: 'ನನ್ನ ಸೇವೆಗಳು',
       pageSubtitle: 'ನಿಮ್ಮ ಸಕ್ರಿಯ ಸೇವೆಗಳನ್ನು ನಿರ್ವಹಿಸಿ ಮತ್ತು ಯಾವುದೇ ಸಮಯದಲ್ಲಿ ನವೀಕರಿಸಿ',
       emptyTitle: 'ನೀವು ಇನ್ನೂ ಯಾವುದೇ ಸೇವೆಯನ್ನು ಪಟ್ಟಿ ಮಾಡಿಲ್ಲ',
       emptySubtitle: 'ಹೊಲಿಗೆ, ಅಡುಗೆ, ಟ್ಯೂಷನ್ ಅಥವಾ ಮೆಹಂದಿ ಕೌಶಲ್ಯಗಳನ್ನು ಪಟ್ಟಿ ಮಾಡಿ ಯಾವುದೇ ಕಮಿಷನ್ ಇಲ್ಲದೆ ಗಳಿಸಲು ಪ್ರಾರಂಭಿಸಿ.',
@@ -774,8 +770,8 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
       shgCheckbox: 'ನಾನು ಮಹಿಳಾ ಸ್ವಸಹಾಯ ಸಂಘದ (ಬಚತ್ ಗಟ್) ಸದಸ್ಯೆ',
       shgHelper: 'ಗ್ರಾಹಕರ ನಂಬಿಕೆಗಾಗಿ ನಿಮ್ಮ ಕಾರ್ಡ್‌ಗೆ ಹಸಿರು SHG ಬ್ಯಾಡ್ಜ್ ಸೇರಿಸುತ್ತದೆ.',
       shgGroupPlaceholder: 'ಉದಾ: ದುರ್ಗಾ ಮಹಿಳಾ ಬಚತ್ ಗಟ್',
-      submitBtn: 'ಸೇವೆಯನ್ನು ಸಲ್ಲಿಸಿ • Submit Listing',
-      saveChangesBtn: 'ಬದಲಾವಣೆಗಳನ್ನು ಉಳಿಸಿ • Save Changes',
+      submitBtn: 'ಸೇವೆಯನ್ನು ಸಲ್ಲಿಸಿ',
+      saveChangesBtn: 'ಬದಲಾವಣೆಗಳನ್ನು ಉಳಿಸಿ',
       submitSubtext: 'ಬ್ರೌಸರ್‌ನಲ್ಲಿ ತಕ್ಷಣ ಉಳಿಯುತ್ತದೆ. ಯಾವುದೇ ನೋಂದಣಿ ಶುಲ್ಕವಿಲ್ಲ.',
       successTitle: 'ಅಭಿನಂದನೆಗಳು! ನಿಮ್ಮ ಸೇವೆ ಸೇರಿಸಲ್ಪಟ್ಟಿದೆ',
       successDesc: (name, category) =>
@@ -832,7 +828,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
       hlFairPricing: 'ನ್ಯಾಯಯುತ ಮತ್ತು ಸ್ಪಷ್ಟ ಬೆಲೆ',
       hlNoCommission: 'ಯಾವುದೇ ಮಧ್ಯವರ್ತಿ ಕಮಿಷನ್ ಇಲ್ಲ',
       hlDirectPay: 'ನಗದು ಅಥವಾ ಯುಪಿಐ ಮೂಲಕ ನೇರ ಪಾವತಿ',
-      contactSellerBtn: 'ಸಂಪರ್ಕಿಸಿ (Contact Seller)',
+      contactSellerBtn: 'ಸಂಪರ್ಕಿಸಿ',
       contactSubtext: 'ನೇರ ಫೋನ್ ಕರೆ ಅಥವಾ ವಾಟ್ಸಾಪ್ ಸಂದೇಶ',
     },
     contactModal: {
@@ -867,8 +863,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
   },
 
   ta: {
-    appTagline: 'அவள் குரல் • அவள் வருமானம் • அவள் வாழ்க்கை',
-    taglineHero: 'அவள் குரல் • அவள் வருமானம் • அவள் வாழ்க்கை • her voice.her income.her life',
+    appTagline: 'அவள் குரல் • அவள் வருமானம் • அவள் எதிர்காலம்',
     shgBadge: 'சுயஉதவி குழு சரிபார்க்கப்பட்டது',
     nav: {
       home: 'முகப்பு',
@@ -910,7 +905,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
       step4Desc: 'பூஜ்ஜிய கமிஷன் அல்லது இடைத்தரகர் இன்றி நேரடியாக போன் அல்லது வாட்ஸ்அப்பில் பேசுங்கள்.',
     },
     myListings: {
-      pageTitle: 'என் சேவைகள் (My Listings)',
+      pageTitle: 'என் சேவைகள்',
       pageSubtitle: 'உங்கள் சேவைகளை எளிதாக நிர்வகிக்கவும் மாற்றவும்',
       emptyTitle: 'நீங்கள் இன்னும் எந்த சேவையையும் சேர்க்கவில்லை',
       emptySubtitle: 'தையல், சமையல், டியூஷன் அல்லது மெஹந்தி சேவையை உடனே சேர்த்து பூஜ்ஜிய கமிஷனில் சம்பாதிக்கத் தொடங்குங்கள்.',
@@ -988,8 +983,8 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
       shgCheckbox: 'நான் மகளிர் சுயஉதவி குழுவின் (SHG) உறுப்பினர்',
       shgHelper: 'நம்பகத்தன்மைக்காக உங்கள் கார்டில் பச்சை பேட்ஜ் சேர்க்கப்படும்.',
       shgGroupPlaceholder: 'உதா: அன்னை மகளிர் குழு (குழு பெயர்)',
-      submitBtn: 'சேவையைச் சமர்ப்பிக்கவும் • Submit Listing',
-      saveChangesBtn: 'மாற்றங்களைச் சேமி • Save Changes',
+      submitBtn: 'சேவையைச் சமர்ப்பிக்கவும்',
+      saveChangesBtn: 'மாற்றங்களைச் சேமி',
       submitSubtext: 'உடனடியாக சேமிக்கப்படும். எந்த கட்டணமும் இல்லை.',
       successTitle: 'வாழ்த்துகள்! உங்கள் சேவை பட்டியலிடப்பட்டது',
       successDesc: (name, category) =>
@@ -1046,7 +1041,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
       hlFairPricing: 'நியாயமான வெளிப்படையான விலை',
       hlNoCommission: 'பூஜ்ஜிய கமிஷன்',
       hlDirectPay: 'நேரடி பணம் அல்லது யுபிஐ கட்டணம்',
-      contactSellerBtn: 'தொடர்பு கொள்ளவும் (Contact Seller)',
+      contactSellerBtn: 'தொடர்பு கொள்ளவும்',
       contactSubtext: 'நேரடி தொலைபேசி அழைப்பு அல்லது வாட்ஸ்அப் செய்தி',
     },
     contactModal: {
@@ -1081,8 +1076,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
   },
 
   te: {
-    appTagline: 'ఆమె స్వరం • ఆమె ఆదాయం • ఆమె జీవితం',
-    taglineHero: 'ఆమె స్వరం • ఆమె ఆదాయం • ఆమె జీవితం • her voice.her income.her life',
+    appTagline: 'ఆమె స్వరం • ఆమె ఆదాయం • ఆమె భవిష్యత్తు',
     shgBadge: 'స్వయం సహాయక సంఘం ధృవీకరించబడింది',
     nav: {
       home: 'హోమ్',
@@ -1124,7 +1118,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
       step4Desc: 'సున్నా కమీషన్‌తో ఫోన్ లేదా వాట్సాప్ ద్వారా నేరుగా మాట్లాడండి. దళారులు లేరు.',
     },
     myListings: {
-      pageTitle: 'నా సేవలు (My Listings)',
+      pageTitle: 'నా సేవలు',
       pageSubtitle: 'మీ సక్రియ సేవా జాబితాలను నిర్వహించండి మరియు ఎప్పుడైనా నవీకరించండి',
       emptyTitle: 'మీరు ఇంకా ఎలాంటి సేవను నమోదు చేయలేదు',
       emptySubtitle: 'టైలరింగ్, వంట, ట్యూషన్ లేదా మెహందీ సేవను చేర్చి సున్నా కమీషన్‌తో సంపాదించడం ప్రారంభించండి.',
@@ -1202,8 +1196,8 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
       shgCheckbox: 'నేను స్వయం సహాయక సంఘం (మహిళా బచత్ గట్) సభ్యురాలిని',
       shgHelper: 'విశ్వసనీయత కోసం మీ కార్డుకు గ్రీన్ SHG బ్యాడ్జ్ జోడించబడుతుంది.',
       shgGroupPlaceholder: 'ఉదా: దుర్గా మహిళా బచత్ గట్',
-      submitBtn: 'లిస్టింగ్‌ను సమర్పించండి • Submit Listing',
-      saveChangesBtn: 'మార్పులను సేవ్ చేయండి • Save Changes',
+      submitBtn: 'లిస్టింగ్‌ను సమర్పించండి',
+      saveChangesBtn: 'మార్పులను సేవ్ చేయండి',
       submitSubtext: 'వెంటనే బ్రౌజర్‌లో భద్రపరచబడుతుంది. ఎలాంటి ఫీజులు లేవు.',
       successTitle: 'అభినందనలు! మీ సేవ జాబితా చేయబడింది',
       successDesc: (name, category) =>
@@ -1260,7 +1254,7 @@ export const TRANSLATIONS: Record<SupportedLanguage, TranslationDictionary> = {
       hlFairPricing: 'న్యాయమైన స్పష్టమైన ధర',
       hlNoCommission: 'సున్నా కమీషన్',
       hlDirectPay: 'నగదు లేదా యుపిఐ ద్వారా చెల్లింపు',
-      contactSellerBtn: 'సంప్రదించండి (Contact Seller)',
+      contactSellerBtn: 'సంప్రదించండి',
       contactSubtext: 'నేరుగా ఫోన్ కాల్ లేదా వాట్సాప్ సందేశం',
     },
     contactModal: {

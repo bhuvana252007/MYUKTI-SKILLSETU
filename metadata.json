@@ -1,6 +1,6 @@
 {
   "name": "skill setu",
-  "description": "SkillSetu: her voice.her income.her life. Connects rural and semi-urban women offering local services with nearby buyers.",
+  "description": "SkillSetu: Her Voice. Her Income. Her Future. Connects rural and semi-urban women offering local services with nearby buyers.",
   "requestFramePermissions": [
     "microphone",
     "geolocation"

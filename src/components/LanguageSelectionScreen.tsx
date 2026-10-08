@@ -1,6 +1,6 @@
 import React from 'react';
 import { SupportedLanguage } from '../types';
-import { LANGUAGE_OPTIONS } from '../translations';
+import { LANGUAGE_OPTIONS, TRANSLATIONS } from '../translations';
 import { Globe, ArrowRight, Sparkles, Check } from 'lucide-react';
 
 interface LanguageSelectionScreenProps {
@@ -30,7 +30,7 @@ export const LanguageSelectionScreen: React.FC<LanguageSelectionScreenProps> = (
       accentBg: '#FBEEE8',
       borderColor: '#E8DED2',
       textColor: '#C2542D',
-      stateName: 'English (Pan-India / General)',
+      stateName: 'Pan-India',
     },
     hi: {
       badge: 'अ',
@@ -38,7 +38,7 @@ export const LanguageSelectionScreen: React.FC<LanguageSelectionScreenProps> = (
       accentBg: '#FDF5EA',
       borderColor: '#E8DED2',
       textColor: '#D9822B',
-      stateName: 'हिन्दी (Hindi / उत्तर व मध्य भारत)',
+      stateName: 'उत्तर व मध्य भारत',
     },
     kn: {
       badge: 'ಅ',
@@ -46,7 +46,7 @@ export const LanguageSelectionScreen: React.FC<LanguageSelectionScreenProps> = (
       accentBg: '#EEF6F2',
       borderColor: '#E8DED2',
       textColor: '#1E4D38',
-      stateName: 'ಕನ್ನಡ (Kannada / ಕರ್ನಾಟಕ)',
+      stateName: 'ಕರ್ನಾಟಕ',
     },
     ta: {
       badge: 'அ',
@@ -54,7 +54,7 @@ export const LanguageSelectionScreen: React.FC<LanguageSelectionScreenProps> = (
       accentBg: '#FDF1EC',
       borderColor: '#E8DED2',
       textColor: '#A13D19',
-      stateName: 'தமிழ் (Tamil / தமிழ்நாடு)',
+      stateName: 'தமிழ்நாடு',
     },
     te: {
       badge: 'అ',
@@ -62,9 +62,42 @@ export const LanguageSelectionScreen: React.FC<LanguageSelectionScreenProps> = (
       accentBg: '#F5F0EB',
       borderColor: '#E8DED2',
       textColor: '#7C3E1D',
-      stateName: 'తెలుగు (Telugu / ఆంధ్రప్రదేశ్ & తెలంగాణ)',
+      stateName: 'ఆంధ్రప్రదేశ్ & తెలంగాణ',
     },
   };
+
+  const screenTexts: Record<
+    SupportedLanguage,
+    { heading: string; subheading: string; footerHint: string }
+  > = {
+    en: {
+      heading: 'Choose Your Language',
+      subheading: 'Select the language you are most comfortable using',
+      footerHint: 'You can change your language anytime from the top bar',
+    },
+    hi: {
+      heading: 'अपनी भाषा चुनें',
+      subheading: 'जिस भाषा में आप सबसे सहज महसूस करें उसे चुनें',
+      footerHint: 'आप ऊपर दिए गए बटन से कभी भी भाषा बदल सकते हैं',
+    },
+    kn: {
+      heading: 'ನಿಮ್ಮ ಭಾಷೆ ಆಯ್ಕೆಮಾಡಿ',
+      subheading: 'ನಿಮಗೆ ಸುಲಭವಾದ ಭಾಷೆಯನ್ನು ಆಯ್ಕೆಮಾಡಿ',
+      footerHint: 'ನೀವು ಮೇಲಿನ ಬಟನ್ ಬಳಸಿ ಯಾವುದೇ ಸಮಯದಲ್ಲಿ ಭಾಷೆಯನ್ನು ಬದಲಾಯಿಸಬಹುದು',
+    },
+    ta: {
+      heading: 'உங்கள் மொழியைத் தேர்ந்தெடுக்கவும்',
+      subheading: 'உங்களுக்கு வசதியான மொழியைத் தேர்வுசெய்யவும்',
+      footerHint: 'மேலே உள்ள பொத்தானைப் பயன்படுத்தி எப்போது வேண்டுமானாலும் மொழியை மாற்றலாம்',
+    },
+    te: {
+      heading: 'మీ భాషను ఎంచుకోండి',
+      subheading: 'మీకు అనుకూలమైన భాషను ఎంచుకోండి',
+      footerHint: 'మీరు పై బటన్ నుండి ఎప్పుడైనా భాషను మార్చవచ్చు',
+    },
+  };
+
+  const texts = screenTexts[currentLanguage] || screenTexts.en;
 
   return (
     <div className="min-h-screen bg-[#FAF5EB] flex flex-col items-center justify-center p-4 sm:p-6 lg:p-8">
@@ -83,18 +116,18 @@ export const LanguageSelectionScreen: React.FC<LanguageSelectionScreenProps> = (
             Skill<span className="text-[#C2542D]">Setu</span>
           </h1>
 
-          <p className="text-xs sm:text-sm font-serif italic text-[#C2542D] font-semibold mb-4 tracking-wide">
-            her voice.her income.her life • उसकी आवाज़ • उसकी आमदनी • उसका जीवन
+          <p className="text-xs sm:text-sm font-serif not-italic text-[#C2542D] font-semibold mb-4 tracking-wide">
+            {TRANSLATIONS[currentLanguage]?.appTagline || TRANSLATIONS.en.appTagline}
           </p>
 
           <div className="h-px w-24 bg-[#EADBCE] mx-auto mb-6"></div>
 
-          {/* Multilingual Heading as requested */}
+          {/* Localized Heading in selected language only */}
           <h2 className="text-xl sm:text-2xl font-bold text-[#3D2B1F] leading-snug mb-2 font-heritage">
-            Choose your language / अपनी भाषा चुनें / ನಿಮ್ಮ ಭಾಷೆ ಆಯ್ಕೆಮಾಡಿ
+            {texts.heading}
           </h2>
           <p className="text-sm sm:text-base text-[#6B5749]">
-            உங்கள் மொழியைத் தேர்ந்தெடுக்கவும் • మీ భాషను ఎంచుకోండి
+            {texts.subheading}
           </p>
         </div>
 
@@ -130,14 +163,9 @@ export const LanguageSelectionScreen: React.FC<LanguageSelectionScreenProps> = (
                       <span className="text-xl sm:text-2xl font-bold font-heritage text-[#3D2B1F]">
                         {lang.nativeName}
                       </span>
-                      {lang.id !== 'en' && (
-                        <span className="text-sm font-semibold text-[#8C7E74]">
-                          ({lang.name})
-                        </span>
-                      )}
                     </div>
                     <p className="text-xs sm:text-sm text-[#6B5749] font-medium mt-0.5">
-                      {deco.stateName} • <span className="font-semibold text-[#C2542D]">{lang.greeting}!</span>
+                      {deco.stateName}
                     </p>
                   </div>
                 </div>
@@ -166,7 +194,7 @@ export const LanguageSelectionScreen: React.FC<LanguageSelectionScreenProps> = (
         <div className="mt-8 pt-6 border-t border-[#EADBCE] text-center">
           <p className="text-xs sm:text-sm text-[#6B5749] flex items-center justify-center gap-2">
             <Sparkles className="w-4 h-4 text-[#D49B24]" />
-            <span>You can change your language anytime from the top bar • आप ऊपर दिए बटन से कभी भी भाषा बदल सकते हैं</span>
+            <span>{texts.footerHint}</span>
           </p>
         </div>
       </div>

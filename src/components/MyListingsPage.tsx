@@ -66,7 +66,7 @@ export const MyListingsPage: React.FC<MyListingsPageProps> = ({
           </button>
 
           <h1 className="text-3xl sm:text-4xl font-bold font-heritage text-[#3D2B1F]">
-            {t.myListings?.pageTitle || 'My Listings • मेरी सेवाएं'}
+            {t.myListings?.pageTitle || 'My Listings'}
           </h1>
           <p className="text-sm sm:text-base text-[#6B5749] mt-1 font-medium">
             {t.myListings?.pageSubtitle || 'Manage your active service offerings and make updates anytime'}
@@ -106,7 +106,7 @@ export const MyListingsPage: React.FC<MyListingsPageProps> = ({
           {myListings.length} {myListings.length === 1 ? 'service active' : 'services active'}
         </span>
         <span className="text-[#C2542D]">
-          Zero commission platform • 100% earnings to seller
+          {t.sellerProfile?.hlNoCommission || 'Zero commission'}
         </span>
       </div>
 

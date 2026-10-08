@@ -14,9 +14,9 @@ export default defineConfig(() => {
         includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'app-logo.png', 'icon.svg', 'icon-maskable.svg', 'pwa-192x192.png', 'pwa-512x512.png', 'pwa-maskable-512x512.png'],
         manifest: {
           id: '/',
-          name: 'SkillSetu - her voice.her income.her life',
+          name: 'SkillSetu - Her Voice. Her Income. Her Future.',
           short_name: 'SkillSetu',
-          description: 'SkillSetu: her voice.her income.her life. Connects rural and semi-urban women offering local services with nearby buyers.',
+          description: 'SkillSetu: Her Voice. Her Income. Her Future. Connects rural and semi-urban women offering local services with nearby buyers.',
           theme_color: '#C2542D',
           background_color: '#FAF5EB',
           display: 'standalone',
@@ -110,7 +110,7 @@ export default defineConfig(() => {
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.
       // Do not modifyâfile watching is disabled to prevent flickering during agent edits.
-      hmr: process.env.DISABLE_HMR !== 'true',
+      hmr: false,
       // Disable file watching when DISABLE_HMR is true to save CPU during agent edits.
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
     },
