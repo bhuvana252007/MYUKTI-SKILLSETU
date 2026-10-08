@@ -497,35 +497,36 @@ app.post('/api/chat', async (req, res) => {
     }
 
     // Determine model based on task complexity:
-    // Complex tasks: gemini-3.1-pro-preview
-    // General tasks: gemini-3.5-flash
+    // Basic & General tasks: gemini-3.8-flash (Primary valid model)
+    // Complex advisory: gemini-3.1-pro-preview
     // Fast tasks: gemini-3.1-flash-lite
-    let selectedModel = 'gemini-3.5-flash';
+    let selectedModel = 'gemini-3.8-flash';
     if (role === 'advisor') {
       selectedModel = 'gemini-3.1-pro-preview';
     } else if (role === 'fast') {
       selectedModel = 'gemini-3.1-flash-lite';
     } else {
-      selectedModel = 'gemini-3.5-flash';
+      selectedModel = 'gemini-3.8-flash';
     }
 
-    // Define System Instructions for specific chatbot roles
-    let systemInstruction = '';
+    // Determine target language name
+    const userLanguage = req.body.language || 'en';
+    const langNames: Record<string, string> = {
+      en: 'English',
+      hi: 'Hindi',
+      kn: 'Kannada',
+      ta: 'Tamil',
+      te: 'Telugu',
+    };
+    const targetLang = langNames[userLanguage] || userLanguage || 'English';
+
+    // System instruction: "You are Setu, a friendly assistant for SkillSetu, a platform connecting rural women's skills (tailoring, cooking, tutoring, mehendi) to local buyers. Reply briefly and simply, in the user's selected language."
+    let systemInstruction = `You are Setu, a friendly assistant for SkillSetu, a platform connecting rural women's skills (tailoring, cooking, tutoring, mehendi) to local buyers. Reply briefly and simply, in the user's selected language (${targetLang}).`;
+
     if (role === 'advisor') {
-      systemInstruction = `You are Setu Advisory Saheli, a senior Self-Help Group (SHG) and micro-enterprise financial consultant for rural and semi-urban Indian women.
-You have expert, deep knowledge in:
-- Government schemes: NRLM (DAY-NRLM), Lakhpati Didi Yojana, PM SVANidhi (street vendor & small artisan credit), Pradhan Mantri Mudra Yojana (Shishu, Kishore, Tarun), Stand-Up India.
-- SHG Bank Linkage, revolving fund (RF), Community Investment Fund (CIF), village organizations (VO), and cluster level federations (CLF).
-- Micro-enterprise financial literacy: calculating cost of goods sold, tailoring pricing, food safety (FSSAI basic registration), bookkeeping registers, and fair profit margins.
-Provide encouraging, well-structured, actionable advice with clear steps, eligibility criteria, and practical examples for women micro-entrepreneurs.`;
+      systemInstruction += ` You also have specialized knowledge in Self-Help Groups (SHG), Lakhpati Didi, Mudra loans, bookkeeping, and micro-business guidance.`;
     } else if (role === 'fast') {
-      systemInstruction = `You are Setu Fast Helper, a snappy and direct micro-assistant for the SkillSetu community platform.
-Keep your answers brief, polite, practical, and right to the point. Answer questions about prices, nearby services, how to contact sellers, or basic platform guidance in 2-4 sentences max.`;
-    } else {
-      systemInstruction = `You are Setu Saheli, the friendly AI community guide for SkillSetu—a platform connecting rural and semi-urban women micro-entrepreneurs (tailors, home cooks, tutors, mehendi artists, artisans) with nearby neighborhood buyers.
-You speak with warmth, respect, empathy, and regional awareness (understanding terms from Hindi, Kannada, Tamil, Telugu, Hinglish, etc.).
-Help buyers find verified local services, calculate fair rates, understand SHG verification, and help sellers improve their listings.
-When asked about local places, materials, or locations, provide helpful geographic guidance.`;
+      systemInstruction += ` Keep responses very concise in 1-2 direct sentences.`;
     }
 
     // Format conversation history for Gemini contents
@@ -541,8 +542,7 @@ When asked about local places, materials, or locations, provide helpful geograph
     let toolConfig: any = undefined;
 
     if (useMaps) {
-      // Use gemini-3.5-flash with googleMaps tool as requested
-      selectedModel = 'gemini-3.5-flash';
+      selectedModel = 'gemini-3.8-flash';
       tools.push({ googleMaps: {} });
       if (userLocation && typeof userLocation.latitude === 'number' && typeof userLocation.longitude === 'number') {
         toolConfig = {
@@ -555,8 +555,7 @@ When asked about local places, materials, or locations, provide helpful geograph
         };
       }
     } else if (useSearch) {
-      // Use gemini-3.5-flash with googleSearch tool as requested
-      selectedModel = 'gemini-3.5-flash';
+      selectedModel = 'gemini-3.8-flash';
       tools.push({ googleSearch: {} });
     }
 
@@ -572,31 +571,42 @@ When asked about local places, materials, or locations, provide helpful geograph
       config.toolConfig = toolConfig;
     }
 
-    // Execute with primary model, with graceful fallback to gemini-3.5-flash without tools if quota or grounding tools encounter limits
+    // Execute with primary model (gemini-3.8-flash), with fast fallback to gemini-3.1-flash-lite if demand spikes or times out
     let response: any;
     let actualModelUsed = selectedModel;
+
+    let timeoutTimer: NodeJS.Timeout | undefined;
+    const timeoutPromise = new Promise<never>((_, reject) => {
+      timeoutTimer = setTimeout(() => reject(new Error('PRIMARY_MODEL_TIMEOUT')), 7000);
+    });
+
     try {
-      response = await ai.models.generateContent({
-        model: selectedModel,
-        contents,
-        config,
-      });
+      response = await Promise.race([
+        ai.models.generateContent({
+          model: selectedModel,
+          contents,
+          config,
+        }),
+        timeoutPromise,
+      ]);
     } catch (primaryErr: any) {
-      console.warn(`Model ${selectedModel} or grounding tool notice:`, primaryErr?.message);
+      console.warn(`Model ${selectedModel} primary note (${primaryErr?.message}), seamlessly using gemini-3.1-flash-lite...`);
       try {
-        actualModelUsed = 'gemini-3.5-flash';
+        actualModelUsed = 'gemini-3.1-flash-lite';
         const fallbackConfig: any = {
           systemInstruction,
           temperature: 0.4,
         };
         response = await ai.models.generateContent({
-          model: 'gemini-3.5-flash',
+          model: 'gemini-3.1-flash-lite',
           contents,
           config: fallbackConfig,
         });
       } catch (_fallbackErr: any) {
         throw primaryErr;
       }
+    } finally {
+      if (timeoutTimer) clearTimeout(timeoutTimer);
     }
 
     const responseText = response?.text || '';

@@ -26,15 +26,14 @@ import {
   Compass, 
   ExternalLink, 
   Radio, 
-  Loader2, 
   Bot, 
   User, 
   RotateCcw,
   Copy,
-  Check
+  Check,
+  AlertCircle
 } from 'lucide-react';
 import { ChatMessage, ChatRole, SupportedLanguage } from '../types';
-import { MicAudioRecorder, transcribeAudioWithGemini } from '../utils/audioUtils';
 
 interface GeminiChatAssistantProps {
   language: SupportedLanguage;
@@ -43,9 +42,9 @@ interface GeminiChatAssistantProps {
 }
 
 const INITIAL_MESSAGES: Record<ChatRole, string> = {
-  general: "Namaste! I am Setu Saheli, your community marketplace companion. Ask me anything about local services, finding verified tailors or cooks, fair pricing in your area, or getting raw materials!",
-  advisor: "Namaste! I am your SHG & Financial Scheme Specialist. Ask me about Lakhpati Didi, DAY-NRLM bank linkage, Mudra loans, bookkeeping registers, food safety rules (FSSAI), or scaling your small enterprise.",
-  fast: "Namaste! Setu Quick Helper ready. Ask any quick question for instant facts or quick service details."
+  general: "Namaste! I am Setu, your friendly assistant for SkillSetu. Ask me anything about connecting rural women's skills (tailoring, cooking, tutoring, mehendi) to local buyers!",
+  advisor: "Namaste! I am Setu, your SHG & Financial Scheme Specialist. Ask me about Lakhpati Didi, DAY-NRLM bank linkage, Mudra loans, bookkeeping, or scaling your enterprise.",
+  fast: "Namaste! Setu Quick Helper ready. Ask any quick question for instant service or pricing details."
 };
 
 const SUGGESTED_PROMPTS: Record<ChatRole, string[]> = {
@@ -69,6 +68,7 @@ const SUGGESTED_PROMPTS: Record<ChatRole, string[]> = {
 };
 
 export const GeminiChatAssistant: React.FC<GeminiChatAssistantProps> = ({
+  language,
   onOpenLiveVoice,
 }) => {
   const [role, setRole] = useState<ChatRole>('general');
@@ -78,7 +78,7 @@ export const GeminiChatAssistant: React.FC<GeminiChatAssistantProps> = ({
       role: 'model',
       content: INITIAL_MESSAGES.general,
       timestamp: Date.now(),
-      modelUsed: 'gemini-3.5-flash',
+      modelUsed: 'gemini-3.8-flash',
     },
   ]);
   const [inputText, setInputText] = useState('');
@@ -88,10 +88,10 @@ export const GeminiChatAssistant: React.FC<GeminiChatAssistantProps> = ({
   const [userLocation, setUserLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [locationStatus, setLocationStatus] = useState<'idle' | 'fetching' | 'available' | 'denied'>('idle');
 
-  // Audio recording & transcription state (gemini-3.5-transcribe)
-  const [isRecordingMic, setIsRecordingMic] = useState(false);
-  const [isTranscribing, setIsTranscribing] = useState(false);
-  const recorderRef = useRef<MicAudioRecorder | null>(null);
+  // Speech Recognition state (Browser SpeechRecognition API)
+  const [isListening, setIsListening] = useState(false);
+  const [speechError, setSpeechError] = useState<string | null>(null);
+  const recognitionRef = useRef<any>(null);
 
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -100,7 +100,111 @@ export const GeminiChatAssistant: React.FC<GeminiChatAssistantProps> = ({
   // Auto scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isLoading, isTranscribing]);
+  }, [messages, isLoading]);
+
+  // Cleanup speech recognition on unmount
+  useEffect(() => {
+    return () => {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.abort();
+        } catch (_) {}
+      }
+    };
+  }, []);
+
+  // Map app language to speech recognition BCP-47 locale
+  const getSpeechLocale = (lang: SupportedLanguage): string => {
+    switch (lang) {
+      case 'kn':
+        return 'kn-IN';
+      case 'hi':
+        return 'hi-IN';
+      case 'ta':
+        return 'ta-IN';
+      case 'te':
+        return 'te-IN';
+      case 'en':
+      default:
+        return 'en-IN';
+    }
+  };
+
+  // Toggle browser SpeechRecognition API
+  const handleToggleMic = () => {
+    setSpeechError(null);
+
+    // Check browser support
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    if (!SpeechRecognition) {
+      const unsupportedMsg = 'Speech recognition is not supported in this browser. Please use Google Chrome, Microsoft Edge, or a supported browser.';
+      console.error(unsupportedMsg);
+      setSpeechError(unsupportedMsg);
+      return;
+    }
+
+    // If currently listening, stop it
+    if (isListening) {
+      if (recognitionRef.current) {
+        try {
+          recognitionRef.current.stop();
+        } catch (_) {}
+      }
+      setIsListening(false);
+      return;
+    }
+
+    try {
+      const recognition = new SpeechRecognition();
+      recognition.continuous = true;
+      recognition.interimResults = true;
+      recognition.lang = getSpeechLocale(language);
+
+      recognition.onstart = () => {
+        setIsListening(true);
+        setSpeechError(null);
+      };
+
+      recognition.onresult = (event: any) => {
+        let transcript = '';
+        for (let i = 0; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        if (transcript.trim()) {
+          // Fill the text into the chat box
+          setInputText(transcript);
+        }
+      };
+
+      recognition.onerror = (event: any) => {
+        console.error('Speech recognition error:', event.error, event);
+        if (event.error === 'not-allowed' || event.error === 'service-not-allowed') {
+          setSpeechError('Microphone permission was denied. Please allow microphone access in your browser settings to speak.');
+        } else if (event.error === 'no-speech') {
+          // User paused, keep listening
+          return;
+        } else {
+          setSpeechError(`Microphone notice: ${event.error}. Please try again.`);
+        }
+        setIsListening(false);
+      };
+
+      recognition.onend = () => {
+        setIsListening(false);
+      };
+
+      recognitionRef.current = recognition;
+      recognition.start();
+    } catch (err: any) {
+      console.error('Failed to initiate SpeechRecognition:', err);
+      if (err?.name === 'NotAllowedError' || err?.message?.toLowerCase().includes('permission')) {
+        setSpeechError('Microphone permission was denied. Please allow microphone access in your browser settings to speak.');
+      } else {
+        setSpeechError(err?.message || 'Could not start speech recognition.');
+      }
+      setIsListening(false);
+    }
+  };
 
   // Request user location if Maps Grounding is enabled
   const handleToggleMaps = () => {
@@ -145,48 +249,22 @@ export const GeminiChatAssistant: React.FC<GeminiChatAssistantProps> = ({
         role: 'model',
         content: INITIAL_MESSAGES[newRole],
         timestamp: Date.now(),
-        modelUsed: newRole === 'advisor' ? 'gemini-3.1-pro-preview' : newRole === 'fast' ? 'gemini-3.1-flash-lite' : 'gemini-3.5-flash',
+        modelUsed: newRole === 'advisor' ? 'gemini-3.1-pro-preview' : newRole === 'fast' ? 'gemini-3.1-flash-lite' : 'gemini-3.8-flash',
       },
     ]);
-  };
-
-  // Microphone Audio Recording & Transcription with gemini-3.5-transcribe
-  const handleToggleMicRecording = async () => {
-    if (isRecordingMic) {
-      // Stop recording and send to /api/transcribe
-      setIsRecordingMic(false);
-      setIsTranscribing(true);
-      try {
-        if (!recorderRef.current) return;
-        const { base64, mimeType } = await recorderRef.current.stop();
-        const transcription = await transcribeAudioWithGemini(base64, mimeType);
-        if (transcription.trim()) {
-          setInputText((prev) => (prev ? `${prev} ${transcription.trim()}` : transcription.trim()));
-        }
-      } catch (err: any) {
-        console.error('Transcription error:', err);
-        alert(`Transcription notice: ${err?.message || 'Could not transcribe audio'}`);
-      } finally {
-        setIsTranscribing(false);
-        recorderRef.current = null;
-      }
-    } else {
-      // Start recording
-      try {
-        const recorder = new MicAudioRecorder();
-        await recorder.start();
-        recorderRef.current = recorder;
-        setIsRecordingMic(true);
-      } catch (err: any) {
-        console.error('Microphone access denied:', err);
-        alert('Please allow microphone permissions to use voice transcription.');
-      }
-    }
   };
 
   const handleSendMessage = async (textToSend?: string) => {
     const prompt = (textToSend !== undefined ? textToSend : inputText).trim();
     if (!prompt || isLoading) return;
+
+    // Stop speech recognition if active when sending
+    if (isListening && recognitionRef.current) {
+      try {
+        recognitionRef.current.stop();
+      } catch (_) {}
+      setIsListening(false);
+    }
 
     const userMessage: ChatMessage = {
       id: `user-${Date.now()}`,
@@ -216,18 +294,19 @@ export const GeminiChatAssistant: React.FC<GeminiChatAssistantProps> = ({
           useSearch,
           useMaps,
           userLocation,
+          language,
         }),
       });
 
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || 'Failed to get response from Gemini');
+        throw new Error(data.error || "Sorry, I couldn't connect. Please try again.");
       }
 
       const assistantMessage: ChatMessage = {
         id: `model-${Date.now()}`,
         role: 'model',
-        content: data.text || 'I could not generate an answer at this moment.',
+        content: data.text || "Sorry, I couldn't connect. Please try again.",
         timestamp: Date.now(),
         modelUsed: data.modelUsed,
         sources: data.sources && data.sources.length > 0 ? data.sources : undefined,
@@ -236,11 +315,12 @@ export const GeminiChatAssistant: React.FC<GeminiChatAssistantProps> = ({
 
       setMessages((prev) => [...prev, assistantMessage]);
     } catch (err: any) {
+      // Log full error to the console for debugging
       console.error('Chat error:', err);
       const errorMessage: ChatMessage = {
         id: `err-${Date.now()}`,
         role: 'model',
-        content: `Notice: ${err?.message || 'Could not connect to Gemini service.'} Please try again.`,
+        content: "Sorry, I couldn't connect. Please try again.",
         timestamp: Date.now(),
         modelUsed: 'system',
       };
@@ -270,7 +350,7 @@ export const GeminiChatAssistant: React.FC<GeminiChatAssistantProps> = ({
         role: 'model',
         content: INITIAL_MESSAGES[role],
         timestamp: Date.now(),
-        modelUsed: role === 'advisor' ? 'gemini-3.1-pro-preview' : role === 'fast' ? 'gemini-3.1-flash-lite' : 'gemini-3.5-flash',
+        modelUsed: role === 'advisor' ? 'gemini-3.1-pro-preview' : role === 'fast' ? 'gemini-3.1-flash-lite' : 'gemini-3.8-flash',
       },
     ]);
   };
@@ -439,10 +519,10 @@ export const GeminiChatAssistant: React.FC<GeminiChatAssistantProps> = ({
                       <span className="font-bold text-[#1E4D38] flex items-center gap-1.5">
                         <Sparkles className="w-3.5 h-3.5 text-[#DDA74F]" />
                         {msg.modelUsed?.includes('pro') 
-                          ? 'SHG Advisor (gemini-3.1-pro-preview)'
+                          ? 'Setu Advisor (gemini-3.1-pro-preview)'
                           : msg.modelUsed?.includes('lite')
-                          ? 'Quick Helper (gemini-3.1-flash-lite)'
-                          : 'Setu Saheli (gemini-3.5-flash)'}
+                          ? 'Setu Quick (gemini-3.1-flash-lite)'
+                          : 'Setu (gemini-3.8-flash)'}
                       </span>
                       <button
                         onClick={() => copyToClipboard(msg.id, msg.content)}
@@ -530,32 +610,20 @@ export const GeminiChatAssistant: React.FC<GeminiChatAssistantProps> = ({
             );
           })}
 
-          {/* Loading bubble */}
+          {/* Typing Indicator */}
           {isLoading && (
             <div className="flex gap-3.5 items-start">
               <div className="w-9 h-9 rounded-2xl bg-[#1E4D38] text-white flex items-center justify-center shrink-0 shadow-xs">
                 <Bot className="w-5 h-5 text-[#DDA74F]" />
               </div>
-              <div className="bg-[#FAF5EB] rounded-3xl p-4 text-sm text-[#6A5D54] border border-stone-200 flex items-center gap-3">
-                <Loader2 className="w-4 h-4 animate-spin text-[#1E4D38]" />
-                <span>
-                  {useMaps 
-                    ? 'Retrieving Google Maps data with gemini-3.5-flash...' 
-                    : useSearch 
-                    ? 'Searching Google web data with gemini-3.5-flash...' 
-                    : role === 'advisor'
-                    ? 'Analyzing with gemini-3.1-pro-preview...'
-                    : 'Setu Saheli is thinking...'}
-                </span>
+              <div className="bg-[#FAF5EB] rounded-2xl px-4 py-3 text-sm text-[#6A5D54] border border-stone-200 flex items-center gap-2.5 shadow-xs">
+                <div className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-[#1E4D38] animate-bounce [animation-delay:-0.3s]"></span>
+                  <span className="w-2 h-2 rounded-full bg-[#1E4D38] animate-bounce [animation-delay:-0.15s]"></span>
+                  <span className="w-2 h-2 rounded-full bg-[#1E4D38] animate-bounce"></span>
+                </div>
+                <span className="font-semibold text-stone-700">typing...</span>
               </div>
-            </div>
-          )}
-
-          {/* Audio Transcribing indicator */}
-          {isTranscribing && (
-            <div className="p-3 bg-amber-50 rounded-2xl border border-amber-200 text-xs text-amber-800 flex items-center gap-2">
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-700" />
-              <span>Transcribing microphone audio using model <strong>gemini-3.5-transcribe</strong>...</span>
             </div>
           )}
 
@@ -576,8 +644,44 @@ export const GeminiChatAssistant: React.FC<GeminiChatAssistantProps> = ({
           ))}
         </div>
 
-        {/* Input Bar with Microphone (gemini-3.5-transcribe) */}
+        {/* Input Bar with SpeechRecognition Microphone */}
         <div className="p-4 bg-white border-t border-stone-200">
+          {/* Active Listening indicator badge */}
+          {isListening && (
+            <div className="flex items-center justify-between gap-2 px-3.5 py-2 mb-2 bg-red-50 border border-red-200 rounded-xl text-xs text-red-700 animate-pulse">
+              <div className="flex items-center gap-2 font-bold">
+                <span className="w-2.5 h-2.5 rounded-full bg-red-600 animate-ping" />
+                <span>Listening... ({getSpeechLocale(language)})</span>
+                <span className="text-[11px] font-normal text-red-600 hidden sm:inline">Speak into your microphone and text will appear below</span>
+              </div>
+              <button
+                type="button"
+                onClick={handleToggleMic}
+                className="text-xs font-bold text-red-800 underline hover:text-red-950 cursor-pointer"
+              >
+                Stop Listening
+              </button>
+            </div>
+          )}
+
+          {/* Speech error message */}
+          {speechError && (
+            <div className="flex items-center justify-between gap-2 px-3.5 py-2 mb-2 bg-amber-50 border border-amber-300 rounded-xl text-xs text-amber-900">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
+                <span>{speechError}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSpeechError(null)}
+                className="text-stone-500 hover:text-stone-800 text-xs font-bold p-1 cursor-pointer"
+                title="Dismiss"
+              >
+                ✕
+              </button>
+            </div>
+          )}
+
           <div className="flex items-end gap-2 bg-[#FAF5EB] rounded-2xl p-2 border border-stone-300 focus-within:border-[#1E4D38] focus-within:ring-2 focus-within:ring-[#1E4D38]/20 transition-all">
             <textarea
               ref={inputRef}
@@ -585,27 +689,36 @@ export const GeminiChatAssistant: React.FC<GeminiChatAssistantProps> = ({
               onChange={(e) => setInputText(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder={
-                isRecordingMic
-                  ? 'Listening to microphone... Speak clearly and tap the red mic when finished.'
+                isListening
+                  ? `Listening... speak now in ${getSpeechLocale(language)}`
                   : 'Ask a question or describe what you need in Hindi, Kannada, Tamil, English...'
               }
               rows={1}
               className="flex-1 bg-transparent resize-none border-none outline-none text-sm text-[#2A221E] px-2 py-1.5 max-h-28 min-h-[38px] placeholder:text-stone-400"
             />
 
-            {/* Audio Transcription Microphone Button (gemini-3.5-transcribe) */}
+            {/* Browser SpeechRecognition Microphone Button */}
             <button
               type="button"
-              onClick={handleToggleMicRecording}
-              disabled={isLoading || isTranscribing}
+              onClick={handleToggleMic}
+              disabled={isLoading}
               className={`p-2.5 rounded-xl font-medium transition-all cursor-pointer ${
-                isRecordingMic
-                  ? 'bg-red-600 text-white animate-pulse shadow-md'
+                isListening
+                  ? 'bg-red-600 text-white animate-pulse shadow-md ring-2 ring-red-400'
                   : 'bg-white hover:bg-stone-100 text-stone-700 border border-stone-200'
               }`}
-              title={isRecordingMic ? 'Stop recording & transcribe with gemini-3.5-transcribe' : 'Transcribe voice with gemini-3.5-transcribe'}
+              title={
+                isListening 
+                  ? 'Listening... Click to stop voice input' 
+                  : `Click to speak (${getSpeechLocale(language)})`
+              }
+              aria-label={isListening ? 'Stop listening' : 'Start microphone voice input'}
             >
-              {isRecordingMic ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4 text-[#1E4D38]" />}
+              {isListening ? (
+                <MicOff className="w-4 h-4 text-white" />
+              ) : (
+                <Mic className="w-4 h-4 text-[#1E4D38]" />
+              )}
             </button>
 
             {/* Send Button */}
@@ -614,6 +727,8 @@ export const GeminiChatAssistant: React.FC<GeminiChatAssistantProps> = ({
               onClick={() => handleSendMessage()}
               disabled={!inputText.trim() || isLoading}
               className="p-2.5 rounded-xl bg-[#1E4D38] text-white hover:bg-[#163829] disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer"
+              title="Send message"
+              aria-label="Send message"
             >
               <Send className="w-4 h-4" />
             </button>
@@ -622,9 +737,9 @@ export const GeminiChatAssistant: React.FC<GeminiChatAssistantProps> = ({
           {/* Micro-label for user awareness */}
           <div className="mt-2 flex items-center justify-between text-[11px] text-stone-400 px-1">
             <span>
-              Microphone transcription powered by <strong>gemini-3.5-transcribe</strong>.
+              Voice input configured for <strong>{getSpeechLocale(language)}</strong> via browser SpeechRecognition.
             </span>
-            <span>Press Enter to send (Shift+Enter for newline)</span>
+            <span>Press Enter to send</span>
           </div>
         </div>
       </div>
